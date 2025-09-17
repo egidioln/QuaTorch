@@ -12,6 +12,9 @@ on:
 permissions:
   contents: read
 
+env:
+  UV_TORCH_BACKEND: cpu
+
 jobs:
   test:
     strategy:

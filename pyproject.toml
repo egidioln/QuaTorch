@@ -48,7 +48,3 @@ dev = [
 [build-system]
 requires = ["uv_build >= 0.8.17, <0.9.0"]
 build-backend = "uv_build"
-
-
-[tool.uv.pip]
-torch-backend = "auto"
