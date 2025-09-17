@@ -7,8 +7,9 @@ readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 dependencies = [
-    "torch>=1.7",
+    "torch>=2.8.0",
 ]
+
 authors = [
   {name = "Lucas N. Egidio", email = "lucasegidio1@gmail.com"},
 ]
@@ -29,6 +30,21 @@ classifiers = [
   "Programming Language :: Python :: 3",
 ]
 
+
+[project.optional-dependencies]
+cpu = [
+  "torch"
+]
+
+[tool.uv.sources]
+torch = [
+  { index = "pytorch-cpu", extra = "cpu" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
 
 [project.urls]
 # Homepage = "https://example.com"
