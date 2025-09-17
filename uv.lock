@@ -319,7 +319,6 @@ name = "quatorch"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
-    { name = "pytest-cov" },
     { name = "torch", version = "2.8.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform == 'darwin'" },
     { name = "torch", version = "2.8.0+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform != 'darwin'" },
 ]
@@ -339,7 +338,6 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "pytest-cov", specifier = ">=7.0.0" },
     { name = "torch", specifier = ">=2.8.0" },
     { name = "torch", marker = "extra == 'cpu'", index = "https://download.pytorch.org/whl/cpu", conflict = { package = "quatorch", extra = "cpu" } },
 ]

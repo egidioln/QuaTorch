@@ -12,3 +12,4 @@ wheels/
 coverage.xml
 .coverage
 htmlcov/
+coverage.json
