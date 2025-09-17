@@ -37,12 +37,6 @@ jobs:
         uv run --with=.[cpu] pytest
         git restore .python-version
 
-      
-    - name: Update Coverage Badge
-      # GitHub actions: default branch variable
-      # https://stackoverflow.com/questions/64781462/github-actions-default-branch-variable
-      if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch) &&  matrix.python-version == '3.10'
-      uses: we-cli/coverage-badge-action@main
 
     - name: 'Upload Coverage HTML'
       uses: actions/upload-artifact@v4
@@ -50,3 +44,9 @@ jobs:
         name: coverage_html
         path: htmlcov/*
         retention-days: 7
+      
+    - name: Update Coverage Badge
+      # GitHub actions: default branch variable
+      # https://stackoverflow.com/questions/64781462/github-actions-default-branch-variable
+      if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch) &&  matrix.python-version == '3.10'
+      uses: we-cli/coverage-badge-action@main
