@@ -43,8 +43,9 @@ class Quaternion(torch.Tensor):
             in the order (W, X, Y, Z).
 
     """
+
     def __new__(cls, *args, **kwargs):
-        if 'data' in kwargs or (len(args) == 1 and isinstance(args[0], torch.Tensor)):
+        if "data" in kwargs or (len(args) == 1 and isinstance(args[0], torch.Tensor)):
             return super().__new__(cls, *args, **kwargs)
         if len(args) == 4:
             tensors = tuple(torch.as_tensor(arg) for arg in args)
@@ -53,15 +54,16 @@ class Quaternion(torch.Tensor):
             except RuntimeError as e:
                 raise ValueError("All input tensors must have the same shape.") from e
             return super().__new__(cls, data)
-        if all(_ in kwargs for _ in 'wxyz'):
-            return super().__new__(cls, (kwargs['w'], kwargs['x'], kwargs['y'], kwargs['z']))
+        if all(_ in kwargs for _ in "wxyz"):
+            return super().__new__(
+                cls, (kwargs["w"], kwargs["x"], kwargs["y"], kwargs["z"])
+            )
         raise ValueError("Invalid arguments for Quaternion initialization.")
 
-      
     @overload
     def __init__(self, data: torch.Tensor, *args, **kwargs):
         pass
-        
+
     @overload
     def __init__(
         self,
@@ -125,13 +127,12 @@ class Quaternion(torch.Tensor):
         w, x, y, z = self.to_wxyz()
         return torch.sqrt(w**2 + x**2 + y**2 + z**2)
 
-
     def __mul__(self, other):
         return self.mul(other)
 
     def __div__(self, other):
         return self.__truediv__(other)
-    
+
     def __truediv__(self, other):
         if isinstance(other, Quaternion):
             return self.mul(other.inverse())
@@ -153,7 +154,9 @@ class Quaternion(torch.Tensor):
     def to_rotation_matrix(self):
         w, x, y, z = self.to_wxyz()
         leading_dims = self.shape[:-1]
-        rotation_matrix = torch.empty(*leading_dims, 3, 3, device=self.device, dtype=self.dtype)
+        rotation_matrix = torch.empty(
+            *leading_dims, 3, 3, device=self.device, dtype=self.dtype
+        )
 
         rotation_matrix[..., 0, 0] = 1 - 2 * (y**2 + z**2)
         rotation_matrix[..., 0, 1] = 2 * (x * y - z * w)
