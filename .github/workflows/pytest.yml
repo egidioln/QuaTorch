@@ -33,10 +33,7 @@ jobs:
         VIRTUAL_ENV: '.venv'
       run: |
         uv python pin ${{ matrix.python-version }}
-        uv venv .venv 
-        source .venv/bin/activate
-        uv pip install . --torch-backend=cpu
-        pytest .
+        uvx --with=.[cpu] pytest
 
     - name: Install QuatTorch in editable mode
       run: uv pip install -e .
