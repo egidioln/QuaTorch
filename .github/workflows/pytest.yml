@@ -32,6 +32,7 @@ jobs:
       env:
         VIRTUAL_ENV: '.venv'
       run: |
+        uv venv .venv
         uv python pin ${{ matrix.python-version }}
         uvx --with=.[cpu] pytest
 
