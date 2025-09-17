@@ -7,6 +7,7 @@ readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 dependencies = [
+    "pytest-cov>=7.0.0",
     "torch>=2.8.0",
 ]
 
@@ -57,6 +58,7 @@ explicit = true
 [dependency-groups]
 dev = [
     "pytest>=8.4.2",
+    "pytest-cov>=7.0.0",
     "ruff>=0.13.0",
 ]
 
@@ -64,3 +66,9 @@ dev = [
 [build-system]
 requires = ["uv_build >= 0.8.17, <0.9.0"]
 build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+# Optional: set python_files pattern to include test files under unit_tests
+python_files = ["test_*.py"]
+addopts = "--cov=quatorch --cov-report xml:coverage.xml --cov-report html:htmlcov"

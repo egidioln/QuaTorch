@@ -36,8 +36,9 @@ jobs:
         uv python pin ${{ matrix.python-version }}
         uvx --with=.[cpu] pytest
 
-    - name: Install QuatTorch in editable mode
-      run: uv pip install -e .
-    - name: Run tests
-      run: pytest test
       
+    - name: Get Coverage
+      uses: orgoro/coverage@v3.2
+      with:
+          coverageFile: ./coverage.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
