@@ -7,7 +7,6 @@ readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 dependencies = [
-    "pytest-cov>=7.0.0",
     "torch>=2.8.0",
 ]
 
@@ -48,10 +47,10 @@ url = "https://download.pytorch.org/whl/cpu"
 explicit = true
 
 [project.urls]
-# Homepage = "https://example.com"
+Homepage = "https://github.com/egidioln/QuaTorch/"
 # Documentation = "https://readthedocs.org"
-# Repository = "https://github.com/me/spam.git"
-# Issues = "https://github.com/me/spam/issues"
+Repository = "https://github.com/egidioln/QuaTorch.git"
+Issues = "https://github.com/egidioln/QuaTorch/issues"
 # Changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
 
 
