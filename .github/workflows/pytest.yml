@@ -43,7 +43,25 @@ jobs:
       # GitHub actions: default branch variable
       # https://stackoverflow.com/questions/64781462/github-actions-default-branch-variable
       if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
-      uses: we-cli/coverage-badge-action@main
+      run: |
+        git checkout gh-pages
+        mkdir -p badges
+        uvx coverage-badge -o ./badges/coverage.svg -f
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add ./badges/coverage.svg
+        git commit -m "Update coverage badge [skip ci]" || echo "No changes to commit"
+        git push origin gh-pages
+      # env:
+      #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        # PERSONAL_ACCESS_TOKEN is a PAT created by the user with repo permissions
+        # and added to the repository secrets
+        # https://docs.github.com/en/actions/security-guides/encrypted-secrets
+        # https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token
+        # Note: GITHUB_TOKEN does not work for pushing to gh-pages branch
+        # https://github.community/t/pushing-to-gh-pages-branch-with-github-token-fails-with-403/179000
+
 
     - name: 'Upload Coverage HTML'
       uses: actions/upload-artifact@v4
