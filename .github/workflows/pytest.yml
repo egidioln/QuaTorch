@@ -55,8 +55,8 @@ jobs:
         git stash pop
         git commit -m "Update coverage badge [skip ci]" || echo "No changes to commit"
         git push origin gh-pages
-      # env:
-      #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         # GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         # PERSONAL_ACCESS_TOKEN is a PAT created by the user with repo permissions
         # and added to the repository secrets
