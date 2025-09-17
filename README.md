@@ -1,4 +1,5 @@
 # quatorch
++ [![cov](https://egidioln.github.io/<repo>/badges/coverage.svg)](https://github.com/egidioln/quatorch/actions)
 
 Quaternion operations in pure PyTorch.
 
