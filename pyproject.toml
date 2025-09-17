@@ -1,0 +1,51 @@
+[project]
+name = "quatorch"
+version = "0.1.0"
+description = "Quaternion operations in pure PyTorch"
+keywords = ["quaternion", "rotation", "3d", "orientation",  "pytorch"]
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=1.7",
+]
+authors = [
+  {name = "Lucas N. Egidio", email = "lucasegidio1@gmail.com"},
+]
+maintainers = [
+  {name = "Lucas N. Egidio", email = "lucasegidio1@gmail.com"},
+]
+
+classifiers = [
+  # TODO change to 5 - Production/Stable
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+
+  # TODO verify "License :: OSI Approved :: MIT License",
+  "Filter Topic :: Scientific/Engineering :: Mathematics",
+  "Filter Topic :: Scientific/Engineering :: Physics",
+
+  # Specify the Python versions you support here.
+  "Programming Language :: Python :: 3",
+]
+
+
+[project.urls]
+# Homepage = "https://example.com"
+# Documentation = "https://readthedocs.org"
+# Repository = "https://github.com/me/spam.git"
+# Issues = "https://github.com/me/spam/issues"
+# Changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
+
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+]
+
+
+[build-system]
+requires = ["uv_build >= 0.8.17, <0.9.0"]
+build-backend = "uv_build"
+
+
