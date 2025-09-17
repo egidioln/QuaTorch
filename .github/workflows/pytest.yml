@@ -34,7 +34,7 @@ jobs:
       run: |
         uv venv .venv
         uv python pin ${{ matrix.python-version }}
-        uvx --with=.[cpu] pytest
+        uv run --with=.[cpu] pytest
 
       
 
