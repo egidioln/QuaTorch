@@ -1,6 +1,6 @@
 [project]
 name = "quatorch"
-version = "0.1.0"
+version = "0.1.0-alpha"
 description = "Quaternion operations in pure PyTorch"
 keywords = ["quaternion", "rotation", "3d", "orientation",  "pytorch"]
 readme = "README.md"
@@ -23,8 +23,8 @@ classifiers = [
   "Intended Audience :: Science/Research",
 
   # TODO verify "License :: OSI Approved :: MIT License",
-  "Filter Topic :: Scientific/Engineering :: Mathematics",
-  "Filter Topic :: Scientific/Engineering :: Physics",
+  "Topic :: Scientific/Engineering :: Mathematics",
+  "Topic :: Scientific/Engineering :: Physics",
 
   # Specify the Python versions you support here.
   "Programming Language :: Python :: 3",
@@ -48,7 +48,7 @@ explicit = true
 
 [project.urls]
 Homepage = "https://github.com/egidioln/QuaTorch/"
-# Documentation = "https://readthedocs.org"
+Documentation = "https://github.com/egidioln/QuaTorch/"
 Repository = "https://github.com/egidioln/QuaTorch.git"
 Issues = "https://github.com/egidioln/QuaTorch/issues"
 # Changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
