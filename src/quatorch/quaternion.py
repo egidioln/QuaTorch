@@ -1,15 +1,15 @@
-from typing import Any, overload
-import torch
-
 import functools
+from typing import Any, overload
+
+import torch
 
 HANDLED_FUNCTIONS = {}
 
 
 def CHECK_OPERAND_SHAPE(other: Any, scalar_allowed: bool = True):
-    if torch.is_tensor(other) and other.shape[-1] != 4:
+    if torch.is_tensor(other) and other.shape[-1] not in (1, 4):
         raise ValueError(
-            "The last dimension must be of size 4 to represent a quaternion (WXYZ)."
+            "The last dimension must be of size 4 to represent a quaternion (WXYZ) or size 1 to represent a real scalar."
         )
     if torch.is_tensor(other) and other.dtype in [torch.complex64, torch.complex128]:
         raise TypeError("Cannot operate between quaternion and complex tensors.")
@@ -107,7 +107,13 @@ class Quaternion(torch.Tensor):
             return Quaternion(super().mul(other))
 
         w1, x1, y1, z1 = self.to_wxyz()
-        w2, x2, y2, z2 = other.to_wxyz()
+        if other.shape[-1] == 4:
+            w2, x2, y2, z2 = Quaternion(other).to_wxyz()
+        else:  # scalar
+            w2 = other[..., 0]
+            x2 = 0
+            y2 = 0
+            z2 = 0
 
         w = w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2
         x = w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2
@@ -132,6 +138,9 @@ class Quaternion(torch.Tensor):
 
     def __div__(self, other):
         return self.__truediv__(other)
+
+    def __pow__(self, other):
+        return self.pow(other)
 
     def __truediv__(self, other):
         if isinstance(other, Quaternion):
@@ -193,8 +202,10 @@ class Quaternion(torch.Tensor):
     def from_axis_angle(axis: torch.Tensor, angle: torch.Tensor):
         if axis.shape[-1] != 3:
             raise ValueError("Axis must have shape (..., 3)")
-        if axis.dim() != angle.dim():
-            raise ValueError("Axis and angle must have the same number of dimensions")
+        if axis.dim() != angle.dim() + 1:
+            raise ValueError(
+                "Axis (..., 3) and angle (...) must have the same number of leading dimensions"
+            )
         if axis.shape[:-1] != angle.shape:
             raise ValueError("Axis and angle must have compatible shapes")
 
@@ -225,7 +236,7 @@ class Quaternion(torch.Tensor):
             raise ValueError("Input vector must have shape (..., 3)")
 
         v_quat = Quaternion(
-            torch.zeros_like(v[..., :1]), v[..., 0], v[..., 1], v[..., 2]
+            torch.zeros_like(v[..., 0]), v[..., 0], v[..., 1], v[..., 2]
         )
 
         rotated_v_quat = self * v_quat * self.conjugate()
@@ -240,24 +251,8 @@ class Quaternion(torch.Tensor):
             raise ValueError("Quaternions must have the same shape for slerp.")
         if isinstance(t, (int, float)):
             t = torch.tensor(t, device=self.device, dtype=self.dtype)
-        if t.dim() == 0:
-            t = t.unsqueeze(0)
-        if t.dim() != self.dim() - 1:
-            raise ValueError("Interpolation factor t must have compatible dimensions.")
 
-        dot = (self * other.conjugate()).abs()
-        dot = torch.clamp(dot, -1.0, 1.0)
-
-        theta = torch.acos(dot)
-        sin_theta = torch.sin(theta)
-
-        s1 = torch.sin((1 - t) * theta) / sin_theta
-        s2 = torch.sin(t * theta) / sin_theta
-
-        s1 = s1.unsqueeze(-1)
-        s2 = s2.unsqueeze(-1)
-
-        return Quaternion(self * s1 + other * s2).normalize()
+        return self * (self.inverse() * other) ** t
 
     @implements(torch.log)
     def log(self):
@@ -270,7 +265,9 @@ class Quaternion(torch.Tensor):
         )
         theta = torch.atan2(v_norm, w)
         coeff = theta / v_norm
-        return torch.stack([0.0 * w, x * coeff, y * coeff, z * coeff], dim=-1)
+        return Quaternion(
+            torch.stack([0.0 * w, x * coeff, y * coeff, z * coeff], dim=-1)
+        )
 
     @implements(torch.exp)
     def exp(self):
