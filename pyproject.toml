@@ -1,13 +1,13 @@
 [project]
 name = "quatorch"
-version = "0.1.0-alpha"
+version = "0.1.0a1"
 description = "Quaternion operations in pure PyTorch"
 keywords = ["quaternion", "rotation", "3d", "orientation",  "pytorch"]
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 dependencies = [
-    "torch>=2.8.0",
+    "torch>=1.7.0",
 ]
 
 authors = [
