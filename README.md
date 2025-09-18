@@ -1,12 +1,14 @@
 
 <img src="https://raw.githubusercontent.com/egidioln/QuaTorch/refs/heads/main/docs/source/_static/logo.svg" width="400px">
 
+***Quaternion in PyTorch***
 # QuaTorch
-[![cov](https://egidioln.github.io/QuaTorch/badges/coverage.svg)](https://github.com/egidioln/quatorch/actions)
+<!--[![Release](https://img.shields.io/github/v/release/actions/deploy-pages?label=Release&logo=github)](https://github.com/actions/deploy-pages/releases/latest) -->
+[![cov](https://raw.githubusercontent.com/egidioln/QuaTorch/refs/heads/gh-pages/badges/coverage.svg)](https://github.com/egidioln/quatorch/actions) 
+[![Tests](https://img.shields.io/github/actions/workflow/status/egidioln/QuaTorch/pytest.yml?label=Tests&logo=github)](https://github.com/egidioln/QuaTorch/actions/workflows/pytest.yml) 
+[![Docs](https://img.shields.io/github/actions/workflow/status/egidioln/QuaTorch/docs.yml?label=Docs&logo=github)](https://egidioln.github.io/QuaTorch/) 
 
-Quaternion operations in pure PyTorch.
-
-`quatorch` provides a `torch.Tensor` subclass that represents a [Quaternion](https://en.wikipedia.org/wiki/Quaternion). It implements common operations in following quaternion algebra such as multiplication,
+The package `quatorch` provides `Quaternion`, a `torch.Tensor` subclass that represents a [Quaternion](https://en.wikipedia.org/wiki/Quaternion). It implements common operations in following quaternion algebra such as multiplication,
 conjugation, inversion, normalization, log, exp, etc. It also supports conversion to/from rotation matrix and axis-angle representation. Convenient utilities are provided together, such as spherical linear interpolation ([slerp](https://en.wikipedia.org/wiki/Slerp)) and 3D vector rotation.
 
 ## Highlights
