@@ -32,7 +32,7 @@ jobs:
           uv run --with .[cpu] sphinx-build -b html docs/source docs/build/html
 
       - name: Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v4
         with:
           path: docs/build/html
 
