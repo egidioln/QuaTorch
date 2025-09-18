@@ -56,13 +56,15 @@ class Quaternion(torch.Tensor):
             return super().__new__(cls, data)
         if all(_ in kwargs for _ in "wxyz"):
             return super().__new__(
-                cls, (kwargs["w"], kwargs["x"], kwargs["y"], kwargs["z"])
+                cls,
+                torch.stack(
+                    [kwargs["w"], kwargs["x"], kwargs["y"], kwargs["z"]], dim=-1
+                ),
             )
         raise ValueError("Invalid arguments for Quaternion initialization.")
 
     @overload
-    def __init__(self, data: torch.Tensor, *args, **kwargs):
-        pass
+    def __init__(self, data: torch.Tensor, *args, **kwargs): ...
 
     @overload
     def __init__(
@@ -72,8 +74,7 @@ class Quaternion(torch.Tensor):
         y: float | torch.Tensor,
         z: float | torch.Tensor,
         **kwargs,
-    ):
-        pass
+    ): ...
 
     def __init__(self, *args, **kwargs):
         super().__init__()
@@ -133,11 +134,14 @@ class Quaternion(torch.Tensor):
         w, x, y, z = self.to_wxyz()
         return torch.sqrt(w**2 + x**2 + y**2 + z**2)
 
+    def __add__(self, other):
+        return self.add(other)
+
+    def __sub__(self, other):
+        return self.sub(other)
+
     def __mul__(self, other):
         return self.mul(other)
-
-    def __div__(self, other):
-        return self.__truediv__(other)
 
     def __pow__(self, other):
         return self.pow(other)

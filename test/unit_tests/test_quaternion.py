@@ -18,6 +18,11 @@ def test_quaternion_init():
     expected = torch.tensor([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 2.0, 3.0]])
     assert torch.allclose(q, expected)
 
+    q = Quaternion(x=x, y=y, z=z, w=w)
+    assert torch.allclose(q, expected)
+
+    assert torch.allclose(q * 2, expected * 2)
+
     with pytest.raises(ValueError):
         Quaternion(1.0, 2.0, 3.0)  # Missing one component
 

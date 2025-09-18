@@ -74,3 +74,9 @@ testpaths = ["test"]
 # Optional: set python_files pattern to include test files under unit_tests
 python_files = ["test_*.py"]
 addopts = "--cov=quatorch --cov-report xml:coverage.xml --cov-report html:htmlcov --cov-report json"
+
+[tool.coverage.report]
+exclude_also = [
+    'raise ValueError',
+    'raise TypeError'
+]
