@@ -1,6 +1,12 @@
 
 # QuaTorch
 
+```{image} /_static/logo.svg
+:alt: QuaTorch Logo
+:width: 30%
+:target: https://pypi.org/project/quatorch/
+```
+
 QuaTorch is a small, dependency-light library for working with quaternions in Python. It provides a compact quaternion type, arithmetic, conversions, and utilities that are convenient for numerical work and testing.
 
 ## Quick links
