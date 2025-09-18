@@ -1,5 +1,7 @@
 
 # QuaTorch
+***Quaternions in PyTorch***
+
 
 ```{image} /_static/logo.svg
 :alt: QuaTorch Logo
