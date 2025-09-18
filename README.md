@@ -31,7 +31,7 @@ Or install editable/development mode:
 
 ```bash
 git clone 
-cd quatorch
+cd QuaTorch
 pip install -e .
 ```
 
