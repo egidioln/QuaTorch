@@ -1,4 +1,7 @@
-# quatorch
+
+<img src="https://raw.githubusercontent.com/egidioln/QuaTorch/refs/heads/main/docs/source/_static/logo.svg" width="400px">
+
+# QuaTorch
 [![cov](https://egidioln.github.io/QuaTorch/badges/coverage.svg)](https://github.com/egidioln/quatorch/actions)
 
 Quaternion operations in pure PyTorch.
