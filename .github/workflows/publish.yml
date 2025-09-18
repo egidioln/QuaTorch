@@ -25,6 +25,6 @@ jobs:
         run: uv build
       # Check that basic features work and we didn't miss to include crucial files
       - name: Smoke test (wheel)
-        run: uv run --isolated --no-project --with dist/*.whl[cpu] test/smoke_test.py
+        run: uv run --isolated --no-project --with "$(ls dist/quatorch-*-none-any.whl)"[cpu]  test/smoke_test.py
       - name: Publish
         run: uv publish
