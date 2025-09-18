@@ -1,5 +1,5 @@
 # quatorch
-+ [![cov](https://egidioln.github.io/quatorch/badges/coverage.svg)](https://github.com/egidioln/quatorch/actions)
+[![cov](https://egidioln.github.io/QuaTorch/badges/coverage.svg)](https://github.com/egidioln/quatorch/actions)
 
 Quaternion operations in pure PyTorch.
 
@@ -87,7 +87,7 @@ This repository includes unit tests using `pytest` under `test/unit_tests`.
 From the project root, run:
 
 ```bash
-uvx pytest 
+uv run --with=. pytest 
 ```
 
 ## Contributing
@@ -102,7 +102,7 @@ Please open issues or pull requests on the repository.
 
 ## License
 
-MIT — see the `pyproject.toml` for author/maintainer information.
+MIT — see the [LICENSE.md](./LICENSE.md) for author/maintainer information.
 
 ## Contact
 
