@@ -30,7 +30,7 @@ exclude_patterns = []
 
 html_theme = "furo"
 html_static_path = ["_static"]
-
+html_favicon = "_static/logo.png"
 
 # For intersphinx
 intersphinx_mapping = {
