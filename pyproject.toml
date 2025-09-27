@@ -1,6 +1,6 @@
 [project]
 name = "quatorch"
-version = "0.1.0a1"
+version = "0.1.0"
 description = "Quaternion operations in pure PyTorch"
 keywords = ["quaternion", "rotation", "3d", "orientation",  "pytorch"]
 readme = "README.md"
@@ -18,8 +18,7 @@ maintainers = [
 ]
 
 classifiers = [
-  # TODO change to 5 - Production/Stable
-  "Development Status :: 4 - Beta",
+  "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Science/Research",
 
   # TODO verify "License :: OSI Approved :: MIT License",
