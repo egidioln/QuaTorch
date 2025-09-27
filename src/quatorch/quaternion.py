@@ -20,7 +20,6 @@ def CHECK_OPERAND_SHAPE(other: Any, scalar_allowed: bool = True):
 def implements(torch_function):
     """Register a torch function override for ScalarTensor"""
 
-    @functools.wraps(torch_function)
     def decorator(func):
         HANDLED_FUNCTIONS[torch_function] = func
         return func
