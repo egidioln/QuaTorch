@@ -176,3 +176,26 @@ def test_log_exp():
     q_rec = Quaternion(torch.exp(log_q))
     # exp(log(q)) may produce a quaternion proportional to q; normalize before compare
     assert torch.allclose(q_rec.normalize(), q.normalize(), atol=1e-5)
+
+
+def test_imag_real():
+    q = Quaternion(1.0, 2.0, 3.0, 4.0)
+    real_part = q.real()
+    imag_part = q.imag()
+    assert torch.allclose(real_part, Quaternion(1.0, 0.0, 0.0, 0.0))
+    assert torch.allclose(imag_part, Quaternion(0.0, 2.0, 3.0, 4.0))
+
+    q_batch = Quaternion(
+        torch.tensor([1.0, 0.0]),
+        torch.tensor([2.0, 1.0]),
+        torch.tensor([3.0, 2.0]),
+        torch.tensor([4.0, 3.0]),
+    )
+    real_part_batch = q_batch.real()
+    imag_part_batch = q_batch.imag()
+    assert torch.allclose(
+        real_part_batch, torch.tensor([[1.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]])
+    )
+    assert torch.allclose(
+        imag_part_batch, torch.tensor([[0.0, 2.0, 3.0, 4.0], [0.0, 1.0, 2.0, 3.0]])
+    )
