@@ -4,6 +4,14 @@ from typing import Any, overload
 import torch
 
 HANDLED_FUNCTIONS = {}
+FUNCTIONS_RETURNING_QUATERNION = {
+    torch.add,
+    torch.sub,
+    torch.mul,
+    torch.pow,
+    torch.exp,
+    torch.log,
+}
 
 
 def CHECK_OPERAND_SHAPE(other: Any, scalar_allowed: bool = True):
@@ -91,7 +99,14 @@ class Quaternion(torch.Tensor):
             kwargs = {}
         if func in HANDLED_FUNCTIONS:
             return HANDLED_FUNCTIONS[func](*args, **kwargs)
-        return super().__torch_function__(func, types, args, kwargs)
+
+        result = super().__torch_function__(func, types, args, kwargs)
+        if (
+            isinstance(result, Quaternion)
+            and func not in FUNCTIONS_RETURNING_QUATERNION
+        ):
+            result = result.as_subclass(torch.Tensor)
+        return result
 
     @implements(torch.add)
     def add(self, other):
