@@ -9,11 +9,9 @@
 :target: https://pypi.org/project/quatorch/
 ```
 
-QuaTorch is a small, dependency-light library for working with quaternions in Python. It provides a compact quaternion type, arithmetic, conversions, and utilities that are convenient for numerical work and testing.
+**QuaTorch** is a lightweight python package providing `Quaternion`, a `torch.Tensor` subclass that represents a [Quaternion](https://en.wikipedia.org/wiki/Quaternion). It implements common special operations for quaternions such as multiplication,
+conjugation, inversion, normalization, log, exp, etc. It also supports conversion to/from rotation matrix and axis-angle representation. Convenient utilities are provided together, such as spherical linear interpolation ([slerp](https://en.wikipedia.org/wiki/Slerp)) and 3D vector rotation.
 
-## Quick links
-
-- Source: https://github.com/egidioln/QuaTorch
 
 ## Installation
 
@@ -60,3 +58,10 @@ Contributions are welcome. Please open issues or pull requests on GitHub. Follow
 
 This project is MIT licensed — see the `LICENSE.md` file for details.
 
+
+```{toctree}
+:maxdepth: 2
+api
+GitHub <https://github.com/egidioln/QuaTorch>
+PyPI <https://pypi.org/project/quatorch/>
+``` 

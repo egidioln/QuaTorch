@@ -13,3 +13,7 @@ coverage.xml
 .coverage
 htmlcov/
 coverage.json
+
+# Docs
+docs/_build/
+

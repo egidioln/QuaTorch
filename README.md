@@ -8,7 +8,7 @@
 [![Tests](https://img.shields.io/github/actions/workflow/status/egidioln/QuaTorch/pytest.yml?label=Tests&logo=github)](https://github.com/egidioln/QuaTorch/actions/workflows/pytest.yml) 
 [![Docs](https://img.shields.io/github/actions/workflow/status/egidioln/QuaTorch/docs.yml?label=Docs&logo=github)](https://egidioln.github.io/QuaTorch/) 
 
-The package `quatorch` provides `Quaternion`, a `torch.Tensor` subclass that represents a [Quaternion](https://en.wikipedia.org/wiki/Quaternion). It implements common operations in following quaternion algebra such as multiplication,
+**QuaTorch** is a lightweight python package providing `Quaternion`, a `torch.Tensor` subclass that represents a [Quaternion](https://en.wikipedia.org/wiki/Quaternion). It implements common special operations for quaternions such as multiplication,
 conjugation, inversion, normalization, log, exp, etc. It also supports conversion to/from rotation matrix and axis-angle representation. Convenient utilities are provided together, such as spherical linear interpolation ([slerp](https://en.wikipedia.org/wiki/Slerp)) and 3D vector rotation.
 
 ## Highlights
@@ -34,8 +34,6 @@ git clone
 cd QuaTorch
 pip install -e .
 ```
-
-See `pyproject.toml` for dependency details (dev deps include `pytest`).
 
 ## Quick start
 
@@ -71,19 +69,19 @@ q_mid = q.slerp(q2, t)
 
 ## API notes
 
+- Order definition:
+	- The quaternion $q=w + x\mathbf{i} + y\mathbf{j} + z\mathbf{k}$ is represented by an ordered tuple $(w, x, y, z)$ and this is the expected order for a quaternion in the whole library (i.e., watch out for XYZW-ordered incoming data).
+
+
 - Construction:
-	- `Quaternion(data: torch.Tensor)` where `data.shape[-1] == 4`.
+	- `Quaternion(data: torch.Tensor)` where `data` has `.shape[-1] == 4`. An arbitrary leading shape is supported in all operations.
 	- `Quaternion(w, x, y, z)` accepts scalars or tensors broadcastable to the same shape.
 
-- Shape requirements:
-	- The last dimension must be size 4 for quaternion tensors (W, X, Y, Z).
 
 - Interoperability:
 	- The class implements several `torch.*` functions via a small dispatcher so
 		many PyTorch APIs behave sensibly with `Quaternion` objects.
 
-See the source in `src/quatorch/quaternion.py` for the full implementation and more
-helper methods.
 
 ## Running tests
 
@@ -97,19 +95,7 @@ uv run --with=. pytest
 
 ## Contributing
 
-Contributions are welcome. A few ideas:
-
-- Add more conversions and higher-level utilities (e.g., batch rotation helpers).
-- Improve numeric stability and add property-based tests.
-- Add docs and usage notebooks / examples.
-
-Please open issues or pull requests on the repository.
-
-## License
-
-MIT — see the [LICENSE.md](./LICENSE.md) for author/maintainer information.
-
-## Contact
-
-Maintainer: Lucas N. Egidio <lucasegidio1@gmail.com>
-
+Contributions are welcome! In particular:
+- Bug reports and feature requests
+- Optimizing performance
+- Helping improving documentation

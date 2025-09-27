@@ -4,13 +4,13 @@
     "editor.formatOnSave": true
   },
   "editor.codeActionsOnSave": {
-    "source.organizeImports": true,
-    "source.fixAll.ruff": true
+    "source.organizeImports": "explicit",
+    "source.fixAll.ruff": "explicit"
   },
   "python.formatting.provider": "none",
   "python.testing.pytestArgs": [
     "test"
-  ],
+],
   "python.testing.unittestEnabled": false,
   "python.testing.pytestEnabled": true
 }

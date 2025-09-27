@@ -15,6 +15,10 @@ author = "Lucas Egidio"
 
 extensions = [
     "myst_parser",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.intersphinx",
 ]
 
 templates_path = ["_templates"]
@@ -26,3 +30,10 @@ exclude_patterns = []
 
 html_theme = "furo"
 html_static_path = ["_static"]
+
+
+# For intersphinx
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3/", None),
+    "torch": ("https://pytorch.org/docs/stable/", None),
+}
