@@ -37,6 +37,8 @@ q = Quaternion(1, 0, 0, 0)  # identity quaternion
 print(q)
 ```
 
+See more examples in the <project:examples.md> page and the <project:api.md>.
+
 ## Run tests
 
 This project uses pytest. From the repository root run:
@@ -61,6 +63,7 @@ This project is MIT licensed — see the `LICENSE.md` file for details.
 
 ```{toctree}
 :maxdepth: 2
+examples.md
 api
 GitHub <https://github.com/egidioln/QuaTorch>
 PyPI <https://pypi.org/project/quatorch/>

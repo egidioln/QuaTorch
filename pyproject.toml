@@ -56,6 +56,7 @@ Issues = "https://github.com/egidioln/QuaTorch/issues"
 [dependency-groups]
 dev = [
     "furo>=2025.7.19",
+    "myst-nb>=1.3.0",
     "myst-parser>=4.0.1",
     "pytest>=8.4.2",
     "pytest-cov>=7.0.0",

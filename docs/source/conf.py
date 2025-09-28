@@ -14,11 +14,16 @@ author = "Lucas Egidio"
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    "myst_parser",
+    "myst_nb",
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
     "sphinx.ext.mathjax",
     "sphinx.ext.intersphinx",
+]
+
+myst_enable_extensions = [
+    "dollarmath",
+    "html_admonition",
 ]
 
 templates_path = ["_templates"]
