@@ -3,7 +3,7 @@
 
 ***Quaternions in PyTorch***
 # QuaTorch
-[![Release](https://img.shields.io/github/v/release/actions/deploy-pages?label=Release&logo=github)](https://github.com/actions/deploy-pages/releases/latest)
+[![Release](https://img.shields.io/github/v/release/egidioln/QuaTorch?label=Release&logo=github)](https://github.com/egidioln/QuaTorch/releases/latest)
 [![cov](https://raw.githubusercontent.com/egidioln/QuaTorch/refs/heads/gh-pages/badges/coverage.svg)](https://github.com/egidioln/quatorch/actions) 
 [![Tests](https://img.shields.io/github/actions/workflow/status/egidioln/QuaTorch/pytest.yml?label=Tests&logo=github)](https://github.com/egidioln/QuaTorch/actions/workflows/pytest.yml) 
 [![Docs](https://img.shields.io/github/actions/workflow/status/egidioln/QuaTorch/docs.yml?label=Docs&logo=github)](https://egidioln.github.io/QuaTorch/) 
