@@ -31,7 +31,7 @@ pip install -e .
 Create and use quaternions:
 
 ```py
-from quatorch.quaternion import Quaternion
+from quatorch import Quaternion
 
 q = Quaternion(1, 0, 0, 0)  # identity quaternion
 print(q)
