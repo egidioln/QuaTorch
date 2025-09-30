@@ -126,7 +126,7 @@ class Quaternion(torch.Tensor):
 
     @implements(torch.mul)
     def mul(self, other: Union[float, "Quaternion"]) -> "Quaternion":
-        """Non-comutative quaternion multiplication."""
+        """Non-commutative quaternion multiplication."""
         CHECK_OPERAND_SHAPE(other, scalar_allowed=True)
 
         if isinstance(other, (int, float)):
@@ -235,7 +235,7 @@ class Quaternion(torch.Tensor):
         Args:
             R: A tensor of shape :math:`(..., 3, 3)` representing the rotation matrix(or matrices).
         Returns:
-            An equivalent quarternion.
+            An equivalent quaternion.
         """
         if R.shape[-2:] != (3, 3):
             raise ValueError("Input rotation matrix must have shape (..., 3, 3)")
@@ -260,7 +260,7 @@ class Quaternion(torch.Tensor):
             angle: A tensor of shape :math:`(...)` representing the rotation angle in radians
 
         Returns:
-            An equivalent quarternion.
+            An equivalent quaternion.
         """
         if axis.shape[-1] != 3:
             raise ValueError("Axis must have shape (..., 3)")
@@ -418,7 +418,7 @@ class Quaternion(torch.Tensor):
         """Real part of quaternion, i.e., :math:`w`
 
         Returns:
-            A real quarternion
+            A real quaternion
         """
         w, _, _, _ = self.to_wxyz()
         zero = torch.zeros_like(w)
