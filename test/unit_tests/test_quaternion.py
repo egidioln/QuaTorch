@@ -81,10 +81,25 @@ def test_quaternion_operations():
     expected_prod = torch.tensor([-14.0, 2.0, 3.0, 4.0])
     assert torch.allclose(q_prod, expected_prod)
 
+    # Broadcasted multiplication
+    tq1 = Quaternion(torch.randn(3, 4))
+    multiplying_tensor = torch.randn(2, 1, 1)
+    result = multiplying_tensor * tq1
+    assert result.shape == (2, 3, 4)
+
     # Division
     q_div = q1 / q2
     expected_div = torch.tensor([2.0, 0.0, 0.0, 0.0])
     assert torch.allclose(q_div, expected_div)
+
+    assert torch.allclose(q1.inverse(), 1 / q1)
+    assert torch.allclose(q2 * q1.inverse(), q2 / q1)
+
+    # Broadcasted division
+    tq1 = Quaternion(torch.randn(3, 4))
+    dividend_tensor = torch.randn(2, 1, 1)
+    result = dividend_tensor / tq1
+    assert result.shape == (2, 3, 4)
 
     # Conjugate
     q_conj = q1.conjugate()
@@ -161,6 +176,23 @@ def test_slerp_and_pow():
     axis2, angle2 = q1_sqrt.to_axis_angle()
     assert torch.allclose(angle2, torch.tensor(math.pi / 2), atol=1e-5)
 
+    # pow: raising q1 to 0.5 should equal q_half (since q0 is identity)
+    q1_sqrt = q1.pow(torch.tensor(0.5))
+    axis2, angle2 = q1_sqrt.to_axis_angle()
+    assert torch.allclose(angle2, torch.tensor(math.pi / 2), atol=1e-5)
+
+
+def test_slerp_batch():
+    t = torch.linspace(0, 1, steps=6).unsqueeze(-1)
+    q = Quaternion.from_axis_angle(
+        torch.tensor([0.0, 1.0, 0.0]), torch.tensor(math.pi / 3)
+    )
+    q = q.normalize()
+    q_final = q**4  # 240 degree rotation about y
+
+    q.slerp(q_final, t)  # Batch of interpolation
+    assert q.slerp(q_final, t).shape == (6, 4)  # 4 quaternions of shape (4,)
+
 
 def test_log_exp():
     # Test log and exp round trip for a non-trivial quaternion
@@ -180,8 +212,8 @@ def test_log_exp():
 
 def test_imag_real():
     q = Quaternion(1.0, 2.0, 3.0, 4.0)
-    real_part = q.real()
-    imag_part = q.imag()
+    real_part = q.real
+    imag_part = q.imag
     assert torch.allclose(real_part, Quaternion(1.0, 0.0, 0.0, 0.0))
     assert torch.allclose(imag_part, Quaternion(0.0, 2.0, 3.0, 4.0))
 
@@ -191,8 +223,8 @@ def test_imag_real():
         torch.tensor([3.0, 2.0]),
         torch.tensor([4.0, 3.0]),
     )
-    real_part_batch = q_batch.real()
-    imag_part_batch = q_batch.imag()
+    real_part_batch = q_batch.real
+    imag_part_batch = q_batch.imag
     assert torch.allclose(
         real_part_batch, torch.tensor([[1.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]])
     )

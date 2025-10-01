@@ -4,18 +4,21 @@ import torch
 
 HANDLED_FUNCTIONS = {}
 FUNCTIONS_RETURNING_QUATERNION = {
-    torch.add,
-    torch.sub,
-    torch.mul,
-    torch.pow,
-    torch.exp,
-    torch.log,
-    torch.real,
-    torch.imag,
+    torch.Tensor.add,
+    torch.Tensor.sub,
+    torch.Tensor.mul,
+    torch.Tensor.pow,
+    torch.Tensor.exp,
+    torch.Tensor.log,
+    torch.Tensor.real,
+    torch.Tensor.imag,
+    torch.Tensor.neg,
 }
 
 
 def CHECK_OPERAND_SHAPE(other: Any, scalar_allowed: bool = True):
+    if isinstance(other, Quaternion):
+        return
     if torch.is_tensor(other) and other.shape[-1] not in (1, 4):
         raise ValueError(
             "The last dimension must be of size 4 to represent a quaternion (WXYZ) or size 1 to represent a real scalar."
@@ -30,7 +33,7 @@ def implements(torch_function):
     """Register a torch function override for ScalarTensor"""
 
     def decorator(func):
-        HANDLED_FUNCTIONS[torch_function] = func
+        HANDLED_FUNCTIONS[torch_function.__name__] = func
         return func
 
     return decorator
@@ -106,8 +109,10 @@ class Quaternion(torch.Tensor):
     def __torch_function__(cls, func, types, args=(), kwargs=None):
         if kwargs is None:
             kwargs = {}
-        if func in HANDLED_FUNCTIONS:
-            return HANDLED_FUNCTIONS[func](*args, **kwargs)
+
+        handler = HANDLED_FUNCTIONS.get(func.__name__, None)
+        if handler is not None:
+            return handler(*args, **kwargs)
 
         result = super().__torch_function__(func, types, args, kwargs)
         if (
@@ -116,74 +121,6 @@ class Quaternion(torch.Tensor):
         ):
             result = result.as_subclass(torch.Tensor)
         return result
-
-    @implements(torch.add)
-    def add(self, other: Union[float, "Quaternion"]) -> "Quaternion":
-        """Quaternion addition (element-wise)."""
-        CHECK_OPERAND_SHAPE(other, scalar_allowed=False)
-
-        return Quaternion(super().add(other))
-
-    @implements(torch.mul)
-    def mul(self, other: Union[float, "Quaternion"]) -> "Quaternion":
-        """Non-commutative quaternion multiplication."""
-        CHECK_OPERAND_SHAPE(other, scalar_allowed=True)
-
-        if isinstance(other, (int, float)):
-            return Quaternion(super().mul(other))
-
-        w1, x1, y1, z1 = self.to_wxyz()
-        if other.shape[-1] == 4:
-            w2, x2, y2, z2 = Quaternion(other).to_wxyz()
-        else:  # scalar
-            w2 = other[..., 0]
-            x2 = 0
-            y2 = 0
-            z2 = 0
-
-        w = w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2
-        x = w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2
-        y = w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2
-        z = w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2
-
-        return Quaternion(torch.stack([w, x, y, z], dim=-1))
-
-    @implements(torch.sub)
-    def sub(self, other: Union[float, "Quaternion"]) -> "Quaternion":
-        """Quaternion subtraction (element-wise)."""
-        CHECK_OPERAND_SHAPE(other, scalar_allowed=False)
-
-        return Quaternion(super().sub(other))
-
-    @implements(torch.abs)
-    def abs(self):
-        r"""Quaternion norm, defined as
-
-        .. math::
-            \|q\| = \sqrt{w^2 + x^2 + y^2 + z^2}
-
-        Returns:
-            A tensor of shape :math:`(...)` representing the norm of the quaternion(s).
-        """
-        w, x, y, z = self.to_wxyz()
-        return torch.sqrt(w**2 + x**2 + y**2 + z**2)
-
-    def __add__(self, other):
-        return self.add(other)
-
-    def __sub__(self, other):
-        return self.sub(other)
-
-    def __mul__(self, other):
-        return self.mul(other)
-
-    def __pow__(self, other):
-        return self.pow(other)
-
-    def __truediv__(self, other):
-        if isinstance(other, Quaternion):
-            return self.mul(other.inverse())
-        return self.div(other)
 
     def conjugate(self):
         r"""Quaternion conjugate, defined as:math:`q^* = w - x\mathbf{i} - y\mathbf{j} - z\mathbf{k}`."""
@@ -341,79 +278,7 @@ class Quaternion(torch.Tensor):
 
         return self * (self.inverse() * other) ** t
 
-    @implements(torch.log)
-    def log(self) -> "Quaternion":
-        r"""Quaternion logarithm of :math:`q`, defined as
-
-        .. math::
-            \log q=\log {\|q\|} +{\frac {\mathbf {v} }{\|\mathbf {v} \|}}\arccos {\frac {w}{\|q\|}}
-
-
-        where :math:`q = w + \mathbf{v}` with :math:`w`  the real part and :math:`\mathbf{v}` the vector part of the quaternion.
-        """
-        w, x, y, z = self.to_wxyz()
-        v_norm = torch.sqrt(x**2 + y**2 + z**2)
-        v_norm = torch.where(
-            v_norm < 1e-8,
-            torch.tensor(1e-8, device=v_norm.device, dtype=v_norm.dtype),
-            v_norm,
-        )
-        theta = torch.atan2(
-            v_norm, w
-        )  # note it's v_norm, not q_norm here. It's equivalent and atan2 is more stable
-        coeff = theta / v_norm
-        return Quaternion(
-            torch.stack(
-                [torch.log(self.abs()), x * coeff, y * coeff, z * coeff], dim=-1
-            )
-        )
-
-    @implements(torch.exp)
-    def exp(self) -> "Quaternion":
-        r"""Quaternion exponential of :math:`q`, defined as
-
-        .. math::
-            e^q=e^{w}\left(\cos \|\mathbf {v} \|+{\frac {\mathbf {v} }{\|\mathbf {v} \|}}\sin \|\mathbf {v} \|\right)
-
-        where :math:`q = w + \mathbf{v}` with :math:`{w}` the real part and :math:`\mathbf{v}` the vector part of the quaternion.
-
-        """
-        w, x, y, z = self.to_wxyz()
-        v_norm = torch.sqrt(x**2 + y**2 + z**2)
-        exp_w = torch.exp(w)
-        cos_v_norm = torch.cos(v_norm)
-        coeff = torch.sinc(v_norm / torch.pi)  # sin(x)/x, more stable for small x
-        return Quaternion(
-            torch.stack(
-                [
-                    exp_w * cos_v_norm,
-                    exp_w * x * coeff,
-                    exp_w * y * coeff,
-                    exp_w * z * coeff,
-                ],
-                dim=-1,
-            )
-        )
-
-    @implements(torch.pow)
-    def pow(self, exponent: Union[float, torch.Tensor, "Quaternion"]) -> "Quaternion":
-        r"""Quaternion power, defined as
-
-        .. math::
-            q^t = \exp(t \log q)
-
-        where :math:`t` is the exponent.
-        """
-        if isinstance(exponent, (int, float)):
-            exponent = torch.tensor(exponent, device=self.device, dtype=self.dtype)
-        if exponent.dim() == 0:
-            exponent = exponent.unsqueeze(0)
-
-        log_q = self.log()
-        scaled_log_q = Quaternion(log_q * exponent)
-        return scaled_log_q.exp()
-
-    @implements(torch.real)
+    @property
     def real(self) -> "Quaternion":
         """Real part of quaternion, i.e., :math:`w`
 
@@ -424,7 +289,7 @@ class Quaternion(torch.Tensor):
         zero = torch.zeros_like(w)
         return Quaternion(w, zero, zero, zero)
 
-    @implements(torch.imag)
+    @property
     def imag(self) -> "Quaternion":
         """Imaginary part of quaternion, i.e., :math:`xi + yj + zk`
 
@@ -434,3 +299,158 @@ class Quaternion(torch.Tensor):
         _, x, y, z = self.to_wxyz()
         zero = torch.zeros_like(x)
         return Quaternion(zero, x, y, z)
+
+
+@implements(torch.Tensor.add)
+def add(
+    this: Union[torch.Tensor, Quaternion],
+    other: Union[torch.Tensor, Quaternion],
+) -> Quaternion:
+    """Quaternion addition (element-wise)."""
+
+    CHECK_OPERAND_SHAPE(this, scalar_allowed=False)
+    CHECK_OPERAND_SHAPE(other, scalar_allowed=False)
+
+    return Quaternion(this.data + other.data)
+
+
+@implements(torch.Tensor.mul)
+def mul(this, other: Union[int, float, Quaternion]) -> Quaternion:
+    """Non-commutative quaternion multiplication."""
+    CHECK_OPERAND_SHAPE(this, scalar_allowed=True)
+    CHECK_OPERAND_SHAPE(other, scalar_allowed=True)
+
+    if isinstance(this, (int, float)) or this.shape[-1] == 1:
+        return Quaternion(this * other.data)
+    if isinstance(other, (int, float)) or other.shape[-1] == 1:
+        return Quaternion(other * this.data)
+
+    w1, x1, y1, z1 = Quaternion(this).to_wxyz()
+    w2, x2, y2, z2 = Quaternion(other).to_wxyz()
+
+    w = w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2
+    x = w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2
+    y = w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2
+    z = w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2
+
+    return Quaternion(torch.stack([w, x, y, z], dim=-1))
+
+
+@implements(torch.Tensor.__rdiv__)
+def __rdiv__(this, other: Union[int, float]) -> "Quaternion":
+    """Right-hand non-commutative quaternion division."""
+    CHECK_OPERAND_SHAPE(other, scalar_allowed=True)
+
+    return other * this.inverse()
+
+
+@implements(torch.Tensor.div)
+def div(this, other: Union[int, float, Quaternion]) -> Quaternion:
+    """Non-commutative quaternion division."""
+    CHECK_OPERAND_SHAPE(other, scalar_allowed=True)
+
+    if isinstance(other, (int, float)) or other.shape[-1] == 1:
+        return Quaternion(this.data / other)
+
+    return this * other.inverse()
+
+
+@implements(torch.Tensor.sub)
+def sub(
+    this: Union[torch.Tensor, Quaternion],
+    other: Union[torch.Tensor, Quaternion],
+) -> Quaternion:
+    """Quaternion subtraction (element-wise)."""
+    CHECK_OPERAND_SHAPE(this, scalar_allowed=False)
+    CHECK_OPERAND_SHAPE(other, scalar_allowed=False)
+
+    return Quaternion(this.data - other.data)
+
+
+@implements(torch.Tensor.abs)
+def abs(this: Quaternion) -> torch.Tensor:
+    r"""Quaternion norm, defined as
+
+    .. math::
+        \|q\| = \sqrt{w^2 + x^2 + y^2 + z^2}
+
+    Returns:
+        A tensor of shape :math:`(...)` representing the norm of the quaternion(s).
+    """
+    w, x, y, z = this.to_wxyz()
+    return torch.sqrt(w**2 + x**2 + y**2 + z**2)
+
+
+@implements(torch.Tensor.log)
+def log(this: Quaternion) -> Quaternion:
+    r"""Quaternion logarithm of :math:`q`, defined as
+
+    .. math::
+        \log q=\log {\|q\|} +{\frac {\mathbf {v} }{\|\mathbf {v} \|}}\arccos {\frac {w}{\|q\|}}
+
+
+    where :math:`q = w + \mathbf{v}` with :math:`w`  the real part and :math:`\mathbf{v}` the vector part of the quaternion.
+    """
+    w, x, y, z = this.to_wxyz()
+    v_norm = torch.sqrt(x**2 + y**2 + z**2)
+    v_norm = torch.where(
+        v_norm < 1e-8,
+        torch.tensor(1e-8, device=v_norm.device, dtype=v_norm.dtype),
+        v_norm,
+    )
+    theta = torch.atan2(
+        v_norm, w
+    )  # note it's v_norm, not q_norm here. It's equivalent and atan2 is more stable
+    coeff = theta / v_norm
+    return Quaternion(
+        torch.stack([torch.log(this.abs()), x * coeff, y * coeff, z * coeff], dim=-1)
+    )
+
+
+@implements(torch.Tensor.exp)
+def exp(this: Quaternion) -> Quaternion:
+    r"""Quaternion exponential of :math:`q`, defined as
+
+    .. math::
+        e^q=e^{w}\left(\cos \|\mathbf {v} \|+{\frac {\mathbf {v} }{\|\mathbf {v} \|}}\sin \|\mathbf {v} \|\right)
+
+    where :math:`q = w + \mathbf{v}` with :math:`{w}` the real part and :math:`\mathbf{v}` the vector part of the quaternion.
+
+    """
+    w, x, y, z = this.to_wxyz()
+    v_norm = torch.sqrt(x**2 + y**2 + z**2)
+    exp_w = torch.exp(w)
+    cos_v_norm = torch.cos(v_norm)
+    coeff = torch.sinc(v_norm / torch.pi)  # sin(x)/x, more stable for small x
+    return Quaternion(
+        torch.stack(
+            [
+                exp_w * cos_v_norm,
+                exp_w * x * coeff,
+                exp_w * y * coeff,
+                exp_w * z * coeff,
+            ],
+            dim=-1,
+        )
+    )
+
+
+@implements(torch.Tensor.pow)
+def pow(
+    this: Quaternion, exponent: Union[float, torch.Tensor, Quaternion]
+) -> Quaternion:
+    r"""Quaternion power, defined as
+
+    .. math::
+        q^t = \exp(t \log q)
+
+    where :math:`t` is the exponent.
+    """
+    if isinstance(exponent, (int, float)):
+        exponent = torch.tensor(exponent, device=this.device, dtype=this.dtype)
+    if exponent.dim() == 0:
+        exponent = exponent.unsqueeze(0)
+
+    log_q = this.log()
+    scaled_log_q = Quaternion(log_q * exponent)
+    return scaled_log_q.exp()
