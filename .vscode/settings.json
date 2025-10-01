@@ -12,5 +12,29 @@
     "test"
 ],
   "python.testing.unittestEnabled": false,
-  "python.testing.pytestEnabled": true
+  "python.testing.pytestEnabled": true,
+  "cSpell.words": [
+    "allclose",
+    "arccos",
+    "broadcastable",
+    "coeff",
+    "dollarmath",
+    "Egidio",
+    "imag",
+    "intersphinx",
+    "keepdim",
+    "mathbf",
+    "mathjax",
+    "pyproject",
+    "pytest",
+    "quatorch",
+    "randn",
+    "sinc",
+    "slerp",
+    "toctree",
+    "WXYZ",
+    "xlabel",
+    "XYZW",
+    "ylabel"
+  ]
 }
