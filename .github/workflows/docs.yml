@@ -34,12 +34,18 @@ jobs:
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v4
         with:
+          name: docs
           path: docs/build/html
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Download a single artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: docs
+
       - name: Deploy Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
