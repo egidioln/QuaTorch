@@ -30,21 +30,6 @@ classifiers = [
 ]
 
 
-[project.optional-dependencies]
-cpu = [
-  "torch"
-]
-
-[tool.uv.sources]
-torch = [
-  { index = "pytorch-cpu", extra = "cpu" },
-]
-
-[[tool.uv.index]]
-name = "pytorch-cpu"
-url = "https://download.pytorch.org/whl/cpu"
-explicit = true
-
 [project.urls]
 Homepage = "https://github.com/egidioln/QuaTorch/"
 Documentation = "https://egidioln.github.io/QuaTorch/"
@@ -55,18 +40,18 @@ Issues = "https://github.com/egidioln/QuaTorch/issues"
 
 [dependency-groups]
 dev = [
-    "furo>=2025.7.19",
-    "matplotlib>=3.10.6",
-    "myst-nb>=1.3.0",
-    "myst-parser>=4.0.1",
-    "numpy>=2.2.6",
-    "pytest>=8.4.2",
-    "pytest-benchmark>=5.1.0",
-    "pytest-cov>=7.0.0",
-    "ruff>=0.13.0",
-    "setuptools>=80.9.0",
-    "sphinx>=8.1.3",
-    "sphinx-autobuild>=2024.10.3",
+    "furo",
+    "matplotlib",
+    "myst-nb",
+    "myst-parser",
+    "numpy",
+    "pytest",
+    "pytest-benchmark",
+    "pytest-cov",
+    "ruff",
+    "setuptools",
+    "sphinx",
+    "sphinx-autobuild",
 ]
 
 
@@ -85,3 +70,36 @@ exclude_also = [
     'raise ValueError',
     'raise TypeError'
 ]
+
+[project.optional-dependencies]
+cu128 = [
+  "torch",
+]
+cpu = [
+  "torch",
+]
+
+[tool.uv]
+conflicts = [
+  [
+    { extra = "cpu" },
+    { extra = "cu128" },
+  ],
+]
+
+[tool.uv.sources]
+torch = [
+  { index = "pytorch", extra = "cu128" },
+  { index = "pytorch-cpu", extra = "cpu" },
+]
+
+
+[[tool.uv.index]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true

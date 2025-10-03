@@ -90,7 +90,13 @@ This repository includes unit tests using `pytest` under `test/unit_tests`.
 From the project root, run:
 
 ```bash
-uv run --with=. pytest 
+uv run --with=.[cu128] pytest 
+```
+
+or 
+
+```bash
+uv run --with=.[cpu] pytest 
 ```
 
 ## Contributing

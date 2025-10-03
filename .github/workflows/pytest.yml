@@ -34,7 +34,7 @@ jobs:
       run: |
         uv venv .venv
         uv python pin ${{ matrix.python-version }}
-        uv run --with=.[cpu] --with=setuptools pytest
+        uv run --with=.[cpu] pytest
         git restore .python-version
 
 
