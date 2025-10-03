@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1759518902858,
+  "lastUpdate": 1759519219302,
   "repoUrl": "https://github.com/egidioln/QuaTorch",
   "entries": {
     "Benchmark": [
@@ -135,6 +135,51 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.0027453925631609954",
             "extra": "mean: 277.1438750000016 msec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "lucasegidio1@gmail.com",
+            "name": "Lucas Egidio",
+            "username": "egidioln"
+          },
+          "committer": {
+            "email": "lucasegidio1@gmail.com",
+            "name": "Lucas Egidio",
+            "username": "egidioln"
+          },
+          "distinct": true,
+          "id": "335fb36dfc1f12808d36db70d0d13cef76b5ff8b",
+          "message": "ci: debug script",
+          "timestamp": "2025-10-03T21:18:41+02:00",
+          "tree_id": "22c152dd742304d7e9b7bdd937dc53170547fa14",
+          "url": "https://github.com/egidioln/QuaTorch/commit/335fb36dfc1f12808d36db70d0d13cef76b5ff8b"
+        },
+        "date": 1759519218287,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_slerp",
+            "value": 0.6133161221815477,
+            "unit": "iter/sec",
+            "range": "stddev: 0.021470736579430817",
+            "extra": "mean: 1.6304805365999981 sec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_rotate_vector",
+            "value": 1.4542732733941914,
+            "unit": "iter/sec",
+            "range": "stddev: 0.01785786432973932",
+            "extra": "mean: 687.6286722000032 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_multiplication",
+            "value": 3.6027094046378827,
+            "unit": "iter/sec",
+            "range": "stddev: 0.008600950856813243",
+            "extra": "mean: 277.56887600000937 msec\nrounds: 5"
           }
         ]
       }
