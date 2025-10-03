@@ -39,7 +39,8 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    environment: github-pages
     steps:
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4
+      - name: Deploy Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: docs/build/html
