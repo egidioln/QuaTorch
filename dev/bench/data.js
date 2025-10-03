@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1759519460926,
+  "lastUpdate": 1759519708923,
   "repoUrl": "https://github.com/egidioln/QuaTorch",
   "entries": {
     "Benchmark": [
@@ -225,6 +225,51 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.0036451712750577396",
             "extra": "mean: 265.69955999999877 msec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "lucasegidio1@gmail.com",
+            "name": "Lucas Egidio",
+            "username": "egidioln"
+          },
+          "committer": {
+            "email": "lucasegidio1@gmail.com",
+            "name": "Lucas Egidio",
+            "username": "egidioln"
+          },
+          "distinct": true,
+          "id": "4836dbf3ec92bb2a8ae84a0b0a59a8ebb0f6936f",
+          "message": "ci: checkout repo in deploy job",
+          "timestamp": "2025-10-03T21:26:58+02:00",
+          "tree_id": "f51c30e24cd515dda38bd4b0bc03c381954ca0d3",
+          "url": "https://github.com/egidioln/QuaTorch/commit/4836dbf3ec92bb2a8ae84a0b0a59a8ebb0f6936f"
+        },
+        "date": 1759519708435,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_slerp",
+            "value": 0.6404969122205603,
+            "unit": "iter/sec",
+            "range": "stddev: 0.019864383847433262",
+            "extra": "mean: 1.561287776599994 sec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_rotate_vector",
+            "value": 1.5307232534168966,
+            "unit": "iter/sec",
+            "range": "stddev: 0.011454060497819633",
+            "extra": "mean: 653.2859533999954 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_multiplication",
+            "value": 3.864369470182423,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0012678318689043316",
+            "extra": "mean: 258.7744282000017 msec\nrounds: 5"
           }
         ]
       }
