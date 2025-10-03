@@ -1,5 +1,4 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+# This runs a linter to check the code style (ruff)
 
 name: Lint
 
@@ -25,7 +24,7 @@ jobs:
         python-version: '3.13'
     - name: Install uv
       uses: astral-sh/setup-uv@v6
-    - name: Run Tests
+    - name: ruff
       env:
         VIRTUAL_ENV: '.venv'
       run: |
