@@ -40,7 +40,13 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    environment: github-pages
     steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+
       - name: Download a single artifact
         uses: actions/download-artifact@v5
         with:
