@@ -17,3 +17,4 @@ coverage.json
 # Docs
 docs/_build/
 
+benchmark_output.json
