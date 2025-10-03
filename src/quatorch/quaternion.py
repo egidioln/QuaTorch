@@ -63,6 +63,7 @@ class Quaternion(torch.Tensor):
 
     """
 
+    @staticmethod
     def __new__(cls, *args, **kwargs):
         if "data" in kwargs or (len(args) == 1 and isinstance(args[0], torch.Tensor)):
             return super().__new__(cls, *args, **kwargs)
@@ -112,7 +113,8 @@ class Quaternion(torch.Tensor):
 
         handler = HANDLED_FUNCTIONS.get(func.__name__, None)
         if handler is not None:
-            return handler(*args, **kwargs)
+            output = handler(*args, **kwargs)
+            return output
 
         result = super().__torch_function__(func, types, args, kwargs)
         if (
@@ -132,12 +134,12 @@ class Quaternion(torch.Tensor):
         r"""Quaternion inverse, defined as :math:`q^{-1} = \frac{q^*}{\|q\|^2}`."""
         norm_sq = self.abs() ** 2
         conj = self.conjugate()
-        return Quaternion(conj / norm_sq.unsqueeze(-1))
+        return conj / norm_sq.unsqueeze(-1)
 
     def normalize(self):
         r"""Returns a normalized quaternion, defined as :math:`\frac{q}{\|q\|}`."""
         norm = self.abs()
-        return Quaternion(self / norm.unsqueeze(-1))
+        return self / norm.unsqueeze(-1)
 
     def to_rotation_matrix(self) -> torch.Tensor:
         r"""Convert the quaternion to a 3x3 rotation matrix.
@@ -237,6 +239,7 @@ class Quaternion(torch.Tensor):
         axis = torch.stack([x / s, y / s, z / s], dim=-1)
         return axis, angle
 
+    @torch.compile
     def rotate_vector(self, v: torch.Tensor):
         """Rotate a 3D vector or a batch of 3D vectors using this quaternion.
 
@@ -260,6 +263,7 @@ class Quaternion(torch.Tensor):
             dim=-1,
         )
 
+    @torch.compile
     def slerp(self, other: "Quaternion", t: Union[float, torch.Tensor]):
         """Performs spherical linear interpolation (slerp) between this quaternion and another quaternion.
 
@@ -310,7 +314,7 @@ class Quaternion(torch.Tensor):
         CHECK_OPERAND_SHAPE(self, scalar_allowed=False)
         CHECK_OPERAND_SHAPE(other, scalar_allowed=False)
 
-        return Quaternion(self.data + other.data)
+        return (self.data + other.data).as_subclass(Quaternion)
 
     @implements(torch.Tensor.mul)
     def mul(
@@ -321,13 +325,16 @@ class Quaternion(torch.Tensor):
         CHECK_OPERAND_SHAPE(self, scalar_allowed=True)
         CHECK_OPERAND_SHAPE(other, scalar_allowed=True)
 
-        if isinstance(self, (int, float)) or self.shape[-1] == 1:
-            return Quaternion(self * other.data)
-        if isinstance(other, (int, float)) or other.shape[-1] == 1:
-            return Quaternion(other * self.data)
+        if isinstance(self, (int, float)):
+            return (self * other.data).as_subclass(Quaternion)
+        if isinstance(other, (int, float)):
+            return (self.data * other).as_subclass(Quaternion)
 
-        w1, x1, y1, z1 = Quaternion(self).to_wxyz()
-        w2, x2, y2, z2 = Quaternion(other).to_wxyz()
+        if other.shape[-1] == 1 or self.shape[-1] == 1:
+            return (self.data * other.data).as_subclass(Quaternion)
+
+        w1, x1, y1, z1 = self.to_wxyz()
+        w2, x2, y2, z2 = other.to_wxyz()
 
         w = w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2
         x = w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2
@@ -337,19 +344,26 @@ class Quaternion(torch.Tensor):
         return Quaternion(torch.stack([w, x, y, z], dim=-1))
 
     @implements(torch.Tensor.__rdiv__)
-    def __rdiv__(self: "Quaternion", other: Union[int, float]) -> "Quaternion":
+    def __rdiv__(
+        self: "Quaternion",
+        other: Union[int, float],
+    ) -> "Quaternion":
         """Right-hand non-commutative quaternion division."""
         CHECK_OPERAND_SHAPE(other, scalar_allowed=True)
 
         return other * self.inverse()
 
     @implements(torch.Tensor.div)
-    def div(self: "Quaternion", other: Union[int, float, "Quaternion"]) -> "Quaternion":
+    def div(
+        self: "Quaternion",
+        other: Union[int, float, "Quaternion"],
+    ) -> "Quaternion":
         """Non-commutative quaternion division."""
         CHECK_OPERAND_SHAPE(other, scalar_allowed=True)
 
         if isinstance(other, (int, float)) or other.shape[-1] == 1:
-            return Quaternion(self.data / other)
+            out = self.clone()
+            return (out / other).as_subclass(Quaternion)
 
         return self * other.inverse()
 
@@ -362,10 +376,12 @@ class Quaternion(torch.Tensor):
         CHECK_OPERAND_SHAPE(self, scalar_allowed=False)
         CHECK_OPERAND_SHAPE(other, scalar_allowed=False)
 
-        return Quaternion(self.data - other.data)
+        return (self.data - other.data).as_subclass(Quaternion)
 
     @implements(torch.Tensor.abs)
-    def abs(self: "Quaternion") -> torch.Tensor:
+    def abs(
+        self: "Quaternion",
+    ) -> torch.Tensor:
         r"""Quaternion norm, defined as
 
         .. math::
@@ -378,7 +394,9 @@ class Quaternion(torch.Tensor):
         return torch.sqrt(w**2 + x**2 + y**2 + z**2)
 
     @implements(torch.Tensor.log)
-    def log(self: "Quaternion") -> "Quaternion":
+    def log(
+        self: "Quaternion",
+    ) -> "Quaternion":
         r"""Quaternion logarithm of :math:`q`, defined as
 
         .. math::
@@ -405,7 +423,9 @@ class Quaternion(torch.Tensor):
         )
 
     @implements(torch.Tensor.exp)
-    def exp(self: "Quaternion") -> "Quaternion":
+    def exp(
+        self: "Quaternion",
+    ) -> "Quaternion":
         r"""Quaternion exponential of :math:`q`, defined as
 
         .. math::
