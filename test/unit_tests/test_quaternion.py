@@ -80,6 +80,7 @@ def test_quaternion_operations():
     q_prod = q1 * q2
     expected_prod = torch.tensor([-14.0, 2.0, 3.0, 4.0])
     assert torch.allclose(q_prod, expected_prod)
+    assert torch.allclose(4 * q1, q1 * 4)
 
     # Broadcasted multiplication
     tq1 = Quaternion(torch.randn(3, 4))
