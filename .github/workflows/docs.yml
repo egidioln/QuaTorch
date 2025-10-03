@@ -46,6 +46,15 @@ jobs:
         with:
           name: docs
 
+      - name: Debug
+        run: |
+          ls -la .
+          ls -la ./docs
+          ls -la ./docs/build
+          ls -la ./docs/build/html
+    
+
+
       - name: Deploy Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
