@@ -310,6 +310,11 @@ class Quaternion(torch.Tensor):
         return Quaternion(zero, x, y, z)
 
     @implements(torch.Tensor.add)
+    def conj(self) -> "Quaternion":
+        """Alias for ``.conj()``."""
+        return self.conjugate()
+
+    @implements(torch.Tensor.add)
     def add(
         self: Union[torch.Tensor, "Quaternion"],
         other: Union[torch.Tensor, "Quaternion"],
