@@ -12,7 +12,12 @@ FUNCTIONS_RETURNING_QUATERNION = {
     torch.Tensor.log,
     torch.Tensor.real,
     torch.Tensor.imag,
+    torch.Tensor.conj,
     torch.Tensor.neg,
+    torch.Tensor.to,
+    torch.Tensor.reshape,
+    torch.Tensor.squeeze,
+    torch.Tensor.unsqueeze,
 }
 
 
