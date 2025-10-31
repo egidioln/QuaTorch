@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2025-10-31
+
+### Feature
+- `.conj()` is now an alias for `.conjugate()`
+
+### Fixed
+- `to()` returns a `Quaternion` (instead of a `torch.Tensor`) 
+
 ## [0.1.1] - 2025-10-01
 
 ### Fixed
