@@ -192,6 +192,22 @@ class Quaternion(torch.Tensor):
         y = (R[..., 0, 2] - R[..., 2, 0]) / (4.0 * w)
         z = (R[..., 1, 0] - R[..., 0, 1]) / (4.0 * w)
 
+        # Symmetric R case should be handled separately to avoid division by zero
+        # See Palais, B., Palais, R. Euler’s fixed point theorem: The axis of a rotation. J. fixed point theory appl. 2, 215–220 (2007). https://doi.org/10.1007/s11784-007-0042-5
+        symmetric_mask = trace <= 0
+
+        uuT = (R[symmetric_mask] + torch.eye(3, device=R.device, dtype=R.dtype)) / 2
+        vs_norm = torch.norm(uuT, dim=-2, keepdim=True)
+        v = torch.einsum(
+            "... cd, ... cd-> ...c", uuT, torch.softmax(vs_norm * 100, dim=-1)
+        )
+        u = v / v.norm(dim=-1, keepdim=True)
+        x_sym, y_sym, z_sym = u.unbind(-1)
+
+        x[symmetric_mask] = x_sym
+        y[symmetric_mask] = y_sym
+        z[symmetric_mask] = z_sym
+
         q = torch.stack([w, x, y, z], dim=-1)
         q = q.reshape(*B, 4)
         return Quaternion(q)

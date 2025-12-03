@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Handle symmetric matrices in `from_rotation_matrix()`.
+
 ## [0.1.2] - 2025-10-31
 
 ### Feature

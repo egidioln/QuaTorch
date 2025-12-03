@@ -232,3 +232,50 @@ def test_imag_real():
     assert torch.allclose(
         imag_part_batch, torch.tensor([[0.0, 2.0, 3.0, 4.0], [0.0, 1.0, 2.0, 3.0]])
     )
+
+
+def test_from_rotation_matrix_under_edge_case_when_R_is_symmetric():
+    matrix = torch.tensor(
+        [
+            [
+                [-0.9925, -0.1025, 0.0669],
+                [-0.1022, 0.3934, -0.9137],
+                [0.0673, -0.9136, -0.4009],
+            ],
+            [
+                [-1.0000, 0.0000, 0.0000],
+                [0.0000, -1.0000, 0.0000],
+                [0.0000, 0.0000, 1.0000],
+            ],
+            [
+                [0.0000, 1.0000, 0.0000],
+                [-1.0000, 0.0000, 0.0000],
+                [0.0000, 0.0000, 1.0000],
+            ],
+        ]
+    )
+    q = Quaternion.from_rotation_matrix(matrix)
+
+    q_0 = Quaternion(
+        -0.00012604775963941,
+        -0.0613069073653219,
+        0.834683917470865,
+        -0.5473063174646830,
+    )
+    q_1 = Quaternion(
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+    )
+    q_2 = Quaternion(
+        0.7071067690849304,
+        0.0,
+        0.0,
+        -0.7071067690849304,
+    )
+    assert torch.allclose(
+        q.normalize(),
+        torch.stack([q_0, q_1, q_2]),
+        atol=1e-3,
+    )
