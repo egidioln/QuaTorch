@@ -339,7 +339,7 @@ class Quaternion(torch.Tensor):
         CHECK_OPERAND_SHAPE(self, scalar_allowed=False)
         CHECK_OPERAND_SHAPE(other, scalar_allowed=False)
 
-        return (self.data + other.data).as_subclass(Quaternion)
+        return (torch.Tensor(self) + torch.Tensor(other)).as_subclass(Quaternion)
 
     @implements(torch.Tensor.mul)
     def mul(
@@ -352,7 +352,7 @@ class Quaternion(torch.Tensor):
             CHECK_OPERAND_SHAPE(other, scalar_allowed=True)
 
         if isinstance(other, (int, float)):
-            return (self.data * other).as_subclass(Quaternion)
+            return (torch.Tensor(self) * other).as_subclass(Quaternion)
 
         if not isinstance(other, Quaternion) or not isinstance(self, Quaternion):
             return (torch.Tensor(self) * torch.Tensor(other)).as_subclass(Quaternion)
@@ -400,7 +400,7 @@ class Quaternion(torch.Tensor):
         CHECK_OPERAND_SHAPE(self, scalar_allowed=False)
         CHECK_OPERAND_SHAPE(other, scalar_allowed=False)
 
-        return (self.data - other.data).as_subclass(Quaternion)
+        return (torch.Tensor(self) - torch.Tensor(other)).as_subclass(Quaternion)
 
     @implements(torch.Tensor.abs)
     def abs(
@@ -491,9 +491,7 @@ class Quaternion(torch.Tensor):
             exponent = torch.tensor(exponent, device=self.device, dtype=self.dtype)
         if exponent.dim() == 0:
             exponent = exponent.unsqueeze(0)
-        from torch._dynamo.comptime import comptime
 
         log_q = self.log()
-        comptime.print_locals()
         scaled_log_q = (torch.Tensor(log_q) * exponent).as_subclass(Quaternion)
         return scaled_log_q.exp()
