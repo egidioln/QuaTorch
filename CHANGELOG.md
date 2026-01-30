@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Feature
+- Added support for `torch.compile` without graph breaks for `mul`, `rotate_vector`, and `slerp` methods.
+
+
 ## [0.1.3] - 2025-12-03
 
 ### Fixed
