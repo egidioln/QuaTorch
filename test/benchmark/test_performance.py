@@ -6,6 +6,13 @@ from quatorch.quaternion import Quaternion
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
+def synchronize():
+    if DEVICE.type == "cuda":
+        torch.cuda.synchronize()
+    if DEVICE.type == "cpu":
+        torch.cpu.synchronize()
+
+
 @pytest.mark.benchmark(
     group=str(DEVICE),
     warmup=False,
@@ -17,7 +24,7 @@ def test_performance_slerp(benchmark):
 
     def slerp():
         x = Quaternion.slerp(q1, q2, t)[0, 0, 0]
-        torch.cuda.synchronize()
+        synchronize()
 
     result = benchmark(
         slerp,
@@ -35,7 +42,7 @@ def test_performance_rotate_vector(benchmark, num_points):
 
     def rotate_vector():
         x = Quaternion.rotate_vector(q1, vectors)
-        torch.cuda.synchronize()
+        synchronize()
 
     result = benchmark(
         rotate_vector,
@@ -67,9 +74,9 @@ def test_performance_multiplication(benchmark, multiplication):
 
     for warmup_n in range(2):
         q = multiplication(q1, q2)
-        torch.cuda.synchronize()
+        synchronize()
 
-    torch.cuda.synchronize()
+    synchronize()
     result = benchmark(
         multiplication,
         q1,
