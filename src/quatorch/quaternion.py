@@ -260,7 +260,6 @@ class Quaternion(torch.Tensor):
         axis = torch.stack([x / s, y / s, z / s], dim=-1)
         return axis, angle
 
-    @torch.compile
     def rotate_vector(self, v: torch.Tensor):
         """Rotate a 3D vector or a batch of 3D vectors using this quaternion.
 
@@ -274,17 +273,16 @@ class Quaternion(torch.Tensor):
         if v.shape[-1] != 3:
             raise ValueError("Input vector must have shape (..., 3)")
 
-        v_quat = Quaternion(
-            torch.zeros_like(v[..., 0]), v[..., 0], v[..., 1], v[..., 2]
-        )
+        v_quat = torch.stack(
+            (torch.zeros_like(v[..., 0]), v[..., 0], v[..., 1], v[..., 2]), dim=-1
+        ).as_subclass(Quaternion)
 
-        rotated_v_quat = self * v_quat * self.conjugate()
+        rotated_v_quat = torch.Tensor(self * v_quat * self.conjugate())
         return torch.stack(
             [rotated_v_quat[..., 1], rotated_v_quat[..., 2], rotated_v_quat[..., 3]],
             dim=-1,
         )
 
-    @torch.compile
     def slerp(self, other: "Quaternion", t: Union[float, torch.Tensor]):
         """Performs spherical linear interpolation (slerp) between this quaternion and another quaternion.
 
