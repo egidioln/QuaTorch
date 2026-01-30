@@ -10,7 +10,7 @@
 ```
 
 **QuaTorch** is a lightweight python package providing `Quaternion`, a `torch.Tensor` subclass that represents a [Quaternion](https://en.wikipedia.org/wiki/Quaternion). It implements common special operations for quaternions such as multiplication,
-conjugation, inversion, normalization, log, exp, etc. It also supports conversion to/from rotation matrix and axis-angle representation. Convenient utilities are provided together, such as spherical linear interpolation ([slerp](https://en.wikipedia.org/wiki/Slerp)) and 3D vector rotation.
+conjugation, inversion, normalization, log, exp, etc. These operations are compatible with `torch.compile` without graph breaks. It also supports conversion to/from rotation matrix and axis-angle representation. Convenient utilities are provided together, such as spherical linear interpolation ([slerp](https://en.wikipedia.org/wiki/Slerp)) and 3D vector rotation.
 
 
 ## Installation

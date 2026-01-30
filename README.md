@@ -18,6 +18,7 @@ conjugation, inversion, normalization, log, exp, etc. It also supports conversio
 	`abs` (norm), `conjugate`, `inverse`, `normalize`, `to_rotation_matrix`, and more.
 - Utilities: `from_rotation_matrix`, `from_axis_angle`, `to_axis_angle`, `rotate_vector`, `slerp`,
 	`log`, `exp`, and `pow`.
+- Compatible with `torch.compile` without graph breaks.
 
 ## Installation
 
