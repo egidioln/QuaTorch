@@ -133,13 +133,13 @@ class Quaternion(torch.Tensor):
         r"""Quaternion conjugate, defined as :math:`q^* = w - x\mathbf{i} - y\mathbf{j} - z\mathbf{k}`."""
 
         w, x, y, z = self.to_wxyz()
-        return Quaternion(torch.stack([w, -x, -y, -z], dim=-1))
+        return (torch.stack([w, -x, -y, -z], dim=-1)).as_subclass(Quaternion)
 
     def inverse(self):
         r"""Quaternion inverse, defined as :math:`q^{-1} = \frac{q^*}{\|q\|^2}`."""
         norm_sq = self.abs() ** 2
         conj = self.conjugate()
-        return conj / norm_sq.unsqueeze(-1)
+        return (torch.Tensor(conj) / norm_sq.unsqueeze(-1)).as_subclass(Quaternion)
 
     def normalize(self):
         r"""Returns a normalized quaternion, defined as :math:`\frac{q}{\|q\|}`."""
@@ -210,7 +210,7 @@ class Quaternion(torch.Tensor):
 
         q = torch.stack([w, x, y, z], dim=-1)
         q = q.reshape(*B, 4)
-        return Quaternion(q)
+        return q.as_subclass(Quaternion)
 
     @staticmethod
     def from_axis_angle(axis: torch.Tensor, angle: torch.Tensor) -> "Quaternion":
@@ -243,7 +243,7 @@ class Quaternion(torch.Tensor):
         z = axis[..., 2] * sin_half_angle
 
         q = torch.stack([w, x, y, z], dim=-1)
-        return Quaternion(q)
+        return q.as_subclass(Quaternion)
 
     def to_axis_angle(self) -> tuple[torch.Tensor, torch.Tensor]:
         r"""Convert the quaternion to an axis-angle representation.
@@ -295,13 +295,14 @@ class Quaternion(torch.Tensor):
         Returns:
             The interpolated quaternion.
         """
-        CHECK_OPERAND_SHAPE(other, scalar_allowed=False)
-        if self.shape != other.shape:
-            raise ValueError("Quaternions must have the same shape for slerp.")
+        if not torch.compiler.is_dynamo_compiling():
+            CHECK_OPERAND_SHAPE(other, scalar_allowed=False)
+            if self.shape != other.shape:
+                raise ValueError("Quaternions must have the same shape for slerp.")
         if isinstance(t, (int, float)):
             t = torch.tensor(t, device=self.device, dtype=self.dtype)
-
-        return self * (self.inverse() * other) ** t
+        final = (self.inverse() * other) ** t
+        return self * final
 
     @property
     def real(self) -> "Quaternion":
@@ -312,7 +313,7 @@ class Quaternion(torch.Tensor):
         """
         w, _, _, _ = self.to_wxyz()
         zero = torch.zeros_like(w)
-        return Quaternion(w, zero, zero, zero)
+        return torch.stack((w, zero, zero, zero), dim=-1).as_subclass(Quaternion)
 
     @property
     def imag(self) -> "Quaternion":
@@ -323,7 +324,7 @@ class Quaternion(torch.Tensor):
         """
         _, x, y, z = self.to_wxyz()
         zero = torch.zeros_like(x)
-        return Quaternion(zero, x, y, z)
+        return torch.stack((zero, x, y, z), dim=-1).as_subclass(Quaternion)
 
     @implements(torch.Tensor.add)
     def conj(self) -> "Quaternion":
@@ -441,11 +442,11 @@ class Quaternion(torch.Tensor):
             v_norm, w
         )  # note it's v_norm, not q_norm here. It's equivalent and atan2 is more stable
         coeff = theta / v_norm
-        return Quaternion(
+        return (
             torch.stack(
                 [torch.log(self.abs()), x * coeff, y * coeff, z * coeff], dim=-1
             )
-        )
+        ).as_subclass(Quaternion)
 
     @implements(torch.Tensor.exp)
     def exp(
@@ -464,7 +465,7 @@ class Quaternion(torch.Tensor):
         exp_w = torch.exp(w)
         cos_v_norm = torch.cos(v_norm)
         coeff = torch.sinc(v_norm / torch.pi)  # sin(x)/x, more stable for small x
-        return Quaternion(
+        return (
             torch.stack(
                 [
                     exp_w * cos_v_norm,
@@ -474,7 +475,7 @@ class Quaternion(torch.Tensor):
                 ],
                 dim=-1,
             )
-        )
+        ).as_subclass(Quaternion)
 
     @implements(torch.Tensor.pow)
     def pow(
@@ -492,7 +493,9 @@ class Quaternion(torch.Tensor):
             exponent = torch.tensor(exponent, device=self.device, dtype=self.dtype)
         if exponent.dim() == 0:
             exponent = exponent.unsqueeze(0)
+        from torch._dynamo.comptime import comptime
 
         log_q = self.log()
-        scaled_log_q = Quaternion(log_q * exponent)
+        comptime.print_locals()
+        scaled_log_q = (torch.Tensor(log_q) * exponent).as_subclass(Quaternion)
         return scaled_log_q.exp()
