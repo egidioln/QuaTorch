@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1764805764035,
+  "lastUpdate": 1769736613736,
   "repoUrl": "https://github.com/egidioln/QuaTorch",
   "entries": {
     "Benchmark": [
@@ -450,6 +450,93 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.0016632761028768808",
             "extra": "mean: 235.55255960000068 msec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "12188889+egidioln@users.noreply.github.com",
+            "name": "Lucas Egidio",
+            "username": "egidioln"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "aa0224923bc165b1e9953e9e2c823588d928d44b",
+          "message": "Merge pull request #2 from egidioln/feature/le/mul-is-torch-compilable\n\nFeature/le/mul is torch compilable",
+          "timestamp": "2026-01-30T02:28:41+01:00",
+          "tree_id": "76f33f53dd4b7c7e3619e330fb6dcc337c74adc7",
+          "url": "https://github.com/egidioln/QuaTorch/commit/aa0224923bc165b1e9953e9e2c823588d928d44b"
+        },
+        "date": 1769736613471,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_slerp[original]",
+            "value": 0.7136228291222263,
+            "unit": "iter/sec",
+            "range": "stddev: 0.006289715791250197",
+            "extra": "mean: 1.4013004618000025 sec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_slerp[compiled]",
+            "value": 1.9971980780902205,
+            "unit": "iter/sec",
+            "range": "stddev: 0.004622752997686901",
+            "extra": "mean: 500.7014631999993 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_slerp[compiled_max_autotune]",
+            "value": 2.045920541707444,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0012776014293662012",
+            "extra": "mean: 488.7775354000013 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_rotate_vector[original]",
+            "value": 1.6870352560970323,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00692070076109489",
+            "extra": "mean: 592.7558397999974 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_rotate_vector[compiled]",
+            "value": 8.777059769623236,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0007975486238961713",
+            "extra": "mean: 113.93337019999876 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_rotate_vector[compiled_max_autotune]",
+            "value": 8.703567713037081,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0012203737788576603",
+            "extra": "mean: 114.89541219999921 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_multiplication[original]",
+            "value": 3.975323835604093,
+            "unit": "iter/sec",
+            "range": "stddev: 0.005308460376697494",
+            "extra": "mean: 251.55183360000137 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_multiplication[compiled]",
+            "value": 43.7253493622616,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00011723686235096885",
+            "extra": "mean: 22.87002881818203 msec\nrounds: 44"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_multiplication[compiled_max_autotune]",
+            "value": 43.61051263639032,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00019233979525689053",
+            "extra": "mean: 22.93025097727379 msec\nrounds: 44"
           }
         ]
       }
