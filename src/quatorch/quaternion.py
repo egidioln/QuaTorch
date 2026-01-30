@@ -109,7 +109,7 @@ class Quaternion(torch.Tensor):
             )
 
     def to_wxyz(self) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
-        return self.as_subclass(torch.Tensor).unbind(-1)
+        return torch.Tensor(self).unbind(-1)
 
     @classmethod
     def __torch_function__(cls, func, types, args=(), kwargs=None):
@@ -348,16 +348,15 @@ class Quaternion(torch.Tensor):
         other: Union[int, float, "Quaternion"],
     ) -> "Quaternion":
         """Non-commutative quaternion multiplication."""
-        CHECK_OPERAND_SHAPE(self, scalar_allowed=True)
-        CHECK_OPERAND_SHAPE(other, scalar_allowed=True)
+        if not torch.compiler.is_dynamo_compiling():
+            CHECK_OPERAND_SHAPE(self, scalar_allowed=True)
+            CHECK_OPERAND_SHAPE(other, scalar_allowed=True)
 
-        if isinstance(self, (int, float)):
-            return (self * other.data).as_subclass(Quaternion)
         if isinstance(other, (int, float)):
             return (self.data * other).as_subclass(Quaternion)
 
-        if other.shape[-1] == 1 or self.shape[-1] == 1:
-            return (self.data * other.data).as_subclass(Quaternion)
+        if not isinstance(other, Quaternion) or not isinstance(self, Quaternion):
+            return (torch.Tensor(self) * torch.Tensor(other)).as_subclass(Quaternion)
 
         w1, x1, y1, z1 = self.to_wxyz()
         w2, x2, y2, z2 = other.to_wxyz()
@@ -367,7 +366,7 @@ class Quaternion(torch.Tensor):
         y = w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2
         z = w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2
 
-        return Quaternion(torch.stack([w, x, y, z], dim=-1))
+        return torch.stack([w, x, y, z], dim=-1).as_subclass(Quaternion)
 
     @implements(torch.Tensor.__rdiv__)
     def __rdiv__(
