@@ -35,7 +35,7 @@ def synchronize():
     ],
 )
 @pytest.mark.benchmark(
-    group=str(DEVICE),
+    group="test_performance_slerp",
     warmup=False,
 )
 def test_performance_slerp(benchmark, slerp):
@@ -63,10 +63,18 @@ def test_performance_slerp(benchmark, slerp):
             ),
             id="compiled",
         ),
+        pytest.param(
+            torch.compile(
+                Quaternion.rotate_vector,
+                fullgraph=True,
+                mode="max-autotune",
+            ),
+            id="compiled_max_autotune",
+        ),
     ],
 )
 @pytest.mark.benchmark(
-    group=str(DEVICE),
+    group="test_performance_rotate_vector",
     warmup=False,
 )
 def test_performance_rotate_vector(benchmark, rotate, num_points=10000000):
@@ -107,7 +115,7 @@ multiplication_compiled_max_autotune = torch.compile(
     ],
 )
 @pytest.mark.benchmark(
-    group=str(DEVICE),
+    group="test_performance_multiplication",
     warmup=False,
 )
 def test_performance_multiplication(benchmark, multiplication):
