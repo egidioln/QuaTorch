@@ -45,6 +45,7 @@ dev = [
     "myst-nb",
     "myst-parser",
     "numpy",
+    "numpy-quaternion",
     "pytest",
     "pytest-benchmark",
     "pytest-cov",
