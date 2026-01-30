@@ -13,35 +13,68 @@ def synchronize():
         torch.cpu.synchronize()
 
 
+@pytest.mark.parametrize(
+    "slerp",
+    [
+        pytest.param(Quaternion.slerp, id="original"),
+        pytest.param(
+            torch.compile(
+                Quaternion.slerp,
+                fullgraph=True,
+            ),
+            id="compiled",
+        ),
+        pytest.param(
+            torch.compile(
+                Quaternion.slerp,
+                fullgraph=True,
+                mode="max-autotune",
+            ),
+            id="compiled_max_autotune",
+        ),
+    ],
+)
 @pytest.mark.benchmark(
     group=str(DEVICE),
     warmup=False,
 )
-def test_performance_slerp(benchmark):
+def test_performance_slerp(benchmark, slerp):
     q1 = Quaternion(torch.randn(10000000, 4, device=DEVICE))
     q2 = Quaternion(torch.randn(10000000, 4, device=DEVICE))
     t = torch.rand(2, 1, 1, device=DEVICE)
 
-    def slerp():
-        x = Quaternion.slerp(q1, q2, t)[0, 0, 0]
+    def slerp_fn():
+        x = slerp(q1, q2, t)
         synchronize()
 
     result = benchmark(
-        slerp,
+        slerp_fn,
     )
 
 
-@pytest.mark.parametrize("num_points", [1000000, 5000000, 10000000])
+@pytest.mark.parametrize(
+    "rotate",
+    [
+        pytest.param(Quaternion.rotate_vector, id="original"),
+        pytest.param(
+            torch.compile(
+                Quaternion.rotate_vector,
+                fullgraph=True,
+            ),
+            id="compiled",
+        ),
+    ],
+)
 @pytest.mark.benchmark(
     group=str(DEVICE),
     warmup=False,
 )
-def test_performance_rotate_vector(benchmark, num_points):
+def test_performance_rotate_vector(benchmark, rotate, num_points=10000000):
     q1 = Quaternion(torch.randn(num_points, 4, device=DEVICE))
     vectors = torch.randn(num_points, 3, device=DEVICE)
 
     def rotate_vector():
-        x = Quaternion.rotate_vector(q1, vectors)
+        x = rotate(q1, vectors)
         synchronize()
 
     result = benchmark(
@@ -50,19 +83,28 @@ def test_performance_rotate_vector(benchmark, num_points):
 
 
 def multiplication(q1: Quaternion, q2: Quaternion) -> Quaternion:
-    return q1 * q2
+    return Quaternion.mul(q1, q2)
 
 
 multiplication_compiled = torch.compile(
     multiplication,
     fullgraph=True,
-    # mode="max-autotune",  # The execution time increases by 3x with this option
+)
+
+multiplication_compiled_max_autotune = torch.compile(
+    multiplication,
+    fullgraph=True,
+    mode="max-autotune",
 )
 
 
 @pytest.mark.parametrize(
     "multiplication",
-    [multiplication, multiplication_compiled],
+    [
+        pytest.param(multiplication, id="original"),
+        pytest.param(multiplication_compiled, id="compiled"),
+        pytest.param(multiplication_compiled_max_autotune, id="compiled_max_autotune"),
+    ],
 )
 @pytest.mark.benchmark(
     group=str(DEVICE),
