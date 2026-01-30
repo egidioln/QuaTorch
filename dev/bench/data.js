@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1769736613736,
+  "lastUpdate": 1769736767561,
   "repoUrl": "https://github.com/egidioln/QuaTorch",
   "entries": {
     "Benchmark": [
@@ -537,6 +537,93 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.00019233979525689053",
             "extra": "mean: 22.93025097727379 msec\nrounds: 44"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "lucasegidio1@gmail.com",
+            "name": "Lucas Egidio",
+            "username": "egidioln"
+          },
+          "committer": {
+            "email": "lucasegidio1@gmail.com",
+            "name": "Lucas Egidio",
+            "username": "egidioln"
+          },
+          "distinct": true,
+          "id": "908f5ac58808c93257e1be1288dc567c1883946a",
+          "message": "chore: bump version for 0.2.0-rc0",
+          "timestamp": "2026-01-30T02:30:43+01:00",
+          "tree_id": "e85f1fa83b94aa9d84c4288d5a10cbda2ac50b59",
+          "url": "https://github.com/egidioln/QuaTorch/commit/908f5ac58808c93257e1be1288dc567c1883946a"
+        },
+        "date": 1769736766609,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_slerp[original]",
+            "value": 0.6628144822202772,
+            "unit": "iter/sec",
+            "range": "stddev: 0.020568796261677",
+            "extra": "mean: 1.5087177888000098 sec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_slerp[compiled]",
+            "value": 1.9883472962378135,
+            "unit": "iter/sec",
+            "range": "stddev: 0.009379532436416285",
+            "extra": "mean: 502.9302485999892 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_slerp[compiled_max_autotune]",
+            "value": 2.0228276022087273,
+            "unit": "iter/sec",
+            "range": "stddev: 0.004211480904300049",
+            "extra": "mean: 494.3575018000047 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_rotate_vector[original]",
+            "value": 1.486212971924888,
+            "unit": "iter/sec",
+            "range": "stddev: 0.008787167313112975",
+            "extra": "mean: 672.8510777999986 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_rotate_vector[compiled]",
+            "value": 8.47281892237855,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0011828787915801632",
+            "extra": "mean: 118.02447439998787 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_rotate_vector[compiled_max_autotune]",
+            "value": 8.361528169411178,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0007860181871648475",
+            "extra": "mean: 119.59536339999204 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_multiplication[original]",
+            "value": 3.7479071452255512,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0025290393277448897",
+            "extra": "mean: 266.81557500000963 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_multiplication[compiled]",
+            "value": 42.2967676806322,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00034904464172905793",
+            "extra": "mean: 23.642468558132933 msec\nrounds: 43"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_multiplication[compiled_max_autotune]",
+            "value": 42.455912704039946,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00023204690405398108",
+            "extra": "mean: 23.55384530232567 msec\nrounds: 43"
           }
         ]
       }
