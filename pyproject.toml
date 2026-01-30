@@ -1,6 +1,6 @@
 [project]
 name = "quatorch"
-version = "0.2.0-dev"
+version = "0.2.0-rc0"
 description = "Quaternion operations in pure PyTorch"
 keywords = ["quaternion", "rotation", "3d", "orientation",  "pytorch"]
 readme = "README.md"
