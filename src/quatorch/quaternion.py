@@ -273,15 +273,13 @@ class Quaternion(torch.Tensor):
         if v.shape[-1] != 3:
             raise ValueError("Input vector must have shape (..., 3)")
 
-        v_quat = torch.stack(
-            (torch.zeros_like(v[..., 0]), v[..., 0], v[..., 1], v[..., 2]), dim=-1
-        ).as_subclass(Quaternion)
+        w, x, y, z = self.to_wxyz()
+        imag_q = torch.stack([x, y, z], dim=-1)
 
-        rotated_v_quat = torch.Tensor(self * v_quat * self.conjugate())
-        return torch.stack(
-            [rotated_v_quat[..., 1], rotated_v_quat[..., 2], rotated_v_quat[..., 3]],
-            dim=-1,
-        )
+        m = w**2 + (imag_q**2).sum(dim=-1, keepdim=True)
+
+        v_prime = v + 2 * imag_q.cross(w * v + imag_q.cross(v)) / m
+        return v_prime
 
     def slerp(self, other: "Quaternion", t: Union[float, torch.Tensor]):
         """Performs spherical linear interpolation (slerp) between this quaternion and another quaternion.
