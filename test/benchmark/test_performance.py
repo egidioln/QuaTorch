@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 import quaternion as np_quat
 import torch
@@ -53,6 +54,19 @@ def test_performance_slerp(benchmark, slerp):
     )
 
 
+def rotate_numpy(q: np_quat.quaternion, vectors: np.ndarray) -> np.ndarray:
+    rotated_vectors_np = np_quat.rotate_vectors(q, vectors)
+
+    return rotated_vectors_np
+
+
+rotate_numpy.__annotations__["convert_input"] = (
+    lambda x: np_quat.as_quat_array(x.cpu().numpy())
+    if isinstance(x, Quaternion)
+    else x.cpu().numpy()
+)
+
+
 @pytest.mark.parametrize(
     "rotate",
     [
@@ -64,10 +78,10 @@ def test_performance_slerp(benchmark, slerp):
             ),
             id="compiled",
         ),
-        # pytest.param(
-        #     numpy_quaternion,
-        #     id="numpy_quaternion",
-        # ),
+        pytest.param(
+            rotate_numpy,
+            id="numpy",
+        ),
     ],
 )
 @pytest.mark.benchmark(
@@ -75,8 +89,12 @@ def test_performance_slerp(benchmark, slerp):
     warmup=False,
 )
 def test_performance_rotate_vector(benchmark, rotate, num_points=10000000):
-    q1 = Quaternion(torch.randn(num_points, 4, device=DEVICE))
+    q1 = Quaternion(torch.randn(1, 4, device=DEVICE))
     vectors = torch.randn(num_points, 3, device=DEVICE)
+
+    convert_input = rotate.__annotations__.get("convert_input", lambda x: x)
+    q1 = convert_input(q1)
+    vectors = convert_input(vectors)
 
     def rotate_vector():
         x = rotate(q1, vectors)
