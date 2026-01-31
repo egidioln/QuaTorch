@@ -160,6 +160,28 @@ def test_from_axis_angle_and_rotate_vector():
     assert torch.allclose(axis_out.abs(), axis.abs(), atol=1e-5)
 
 
+def test_rotate_vector_broadcasts_as_it_should():
+    q = Quaternion.from_axis_angle(
+        torch.tensor([0.0, 1.0, 0.0]), torch.tensor(math.pi / 2)
+    ).normalize()
+
+    v = torch.tensor([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]])
+    v_rot = q.rotate_vector(v)
+    expected = torch.tensor([[0.0, 0.0, -1.0], [0.0, 1.0, 0.0], [1.0, 0.0, 0.0]])
+    assert torch.allclose(v_rot, expected, atol=1e-5)
+
+    # Test batch of quaternions
+    q_batch = Quaternion.from_axis_angle(
+        torch.tensor([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]),
+        torch.tensor([math.pi / 2, math.pi]),
+    ).normalize()
+
+    v = torch.tensor([1.0, 0.0, 0.0])
+    v_rot_batch = q_batch.rotate_vector(v)
+    expected_batch = torch.tensor([[1.0, 0.0, 0.0], [-1.0, 0.0, 0.0]])
+    assert torch.allclose(v_rot_batch, expected_batch, atol=1e-5)
+
+
 def test_slerp_and_pow():
     # interpolate between identity and 180deg rotation about x
     q0 = Quaternion(1.0, 0.0, 0.0, 0.0).normalize()
