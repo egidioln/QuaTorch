@@ -274,11 +274,12 @@ class Quaternion(torch.Tensor):
             raise ValueError("Input vector must have shape (..., 3)")
 
         w, x, y, z = self.to_wxyz()
+        w.unsqueeze_(-1)
         imag_q = torch.stack([x, y, z], dim=-1)
 
         m = w**2 + (imag_q**2).sum(dim=-1, keepdim=True)
 
-        v_prime = v + 2 * imag_q.cross(w * v + imag_q.cross(v)) / m
+        v_prime = v + 2 * _cross(imag_q, w * v + _cross(imag_q, v)) / m
         return v_prime
 
     def slerp(self, other: "Quaternion", t: Union[float, torch.Tensor]):
@@ -493,3 +494,17 @@ class Quaternion(torch.Tensor):
         log_q = self.log()
         scaled_log_q = (torch.Tensor(log_q) * exponent).as_subclass(Quaternion)
         return scaled_log_q.exp()
+
+
+def _cross(a: torch.Tensor, b: torch.Tensor) -> torch.Tensor:
+    """
+    Computes the cross product of two tensors along the last dimension.
+    Parameters:
+        a (torch.Tensor): The first input tensor. Must have at least one dimension of size 3 along the last axis.
+        b (torch.Tensor): The second input tensor. Must be broadcastable to the shape of `a` and have size 3 along the last axis.
+    Returns:
+        torch.Tensor: The cross product of `a` and `b`, with the same shape as the broadcasted inputs.
+    """
+
+    a, b = torch.broadcast_tensors(a, b)
+    return torch.cross(a, b, dim=-1)
