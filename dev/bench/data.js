@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1769880149886,
+  "lastUpdate": 1769880948992,
   "repoUrl": "https://github.com/egidioln/QuaTorch",
   "entries": {
     "Benchmark": [
@@ -1045,6 +1045,93 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.0008047029411920801",
             "extra": "mean: 52.660314899999605 msec\nrounds: 20"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "lucasegidio1@gmail.com",
+            "name": "Lucas Egidio",
+            "username": "egidioln"
+          },
+          "committer": {
+            "email": "lucasegidio1@gmail.com",
+            "name": "Lucas Egidio",
+            "username": "egidioln"
+          },
+          "distinct": true,
+          "id": "484951b34cb82d2726a89e43d42c5e0da64fe4f9",
+          "message": "fix: avoid copying memory in rotate_vector",
+          "timestamp": "2026-01-31T18:28:27+01:00",
+          "tree_id": "94d1f3e54f462f00f9937753d8843ba1d832e33b",
+          "url": "https://github.com/egidioln/QuaTorch/commit/484951b34cb82d2726a89e43d42c5e0da64fe4f9"
+        },
+        "date": 1769880948426,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_slerp[original]",
+            "value": 0.5965734933276988,
+            "unit": "iter/sec",
+            "range": "stddev: 0.08148916727095765",
+            "extra": "mean: 1.6762394091999966 sec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_slerp[compiled]",
+            "value": 1.9081077706473446,
+            "unit": "iter/sec",
+            "range": "stddev: 0.013018988739601715",
+            "extra": "mean: 524.0794128000118 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_slerp[compiled_max_autotune]",
+            "value": 1.9367733544247152,
+            "unit": "iter/sec",
+            "range": "stddev: 0.010555764176206692",
+            "extra": "mean: 516.3226753999993 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_rotate_vector[original]",
+            "value": 5.281873523216301,
+            "unit": "iter/sec",
+            "range": "stddev: 0.013040577694005072",
+            "extra": "mean: 189.3267598333305 msec\nrounds: 6"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_rotate_vector[compiled]",
+            "value": 22.127845290178723,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0003607779210198596",
+            "extra": "mean: 45.19192839999846 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_rotate_vector[numpy]",
+            "value": 10.459182450967813,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0025782057892288638",
+            "extra": "mean: 95.6097672727248 msec\nrounds: 11"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_multiplication[original]",
+            "value": 3.2744530335480255,
+            "unit": "iter/sec",
+            "range": "stddev: 0.018469654860744762",
+            "extra": "mean: 305.3945161999934 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_multiplication[compiled]",
+            "value": 40.48298570673976,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0009394873079648355",
+            "extra": "mean: 24.701735372090308 msec\nrounds: 43"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_multiplication[numpy]",
+            "value": 15.319235304063792,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0037019407101543927",
+            "extra": "mean: 65.27740974999752 msec\nrounds: 16"
           }
         ]
       }
