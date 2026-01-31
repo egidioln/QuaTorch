@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1769854209645,
+  "lastUpdate": 1769880149886,
   "repoUrl": "https://github.com/egidioln/QuaTorch",
   "entries": {
     "Benchmark": [
@@ -958,6 +958,93 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.0004235730706324112",
             "extra": "mean: 52.249524449999996 msec\nrounds: 20"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "lucasegidio1@gmail.com",
+            "name": "Lucas Egidio",
+            "username": "egidioln"
+          },
+          "committer": {
+            "email": "lucasegidio1@gmail.com",
+            "name": "Lucas Egidio",
+            "username": "egidioln"
+          },
+          "distinct": true,
+          "id": "b6cde899ba1dc390ed5a958b05a624f6bc3dc4a9",
+          "message": "test:  ensure rotate_vector broadcasting works",
+          "timestamp": "2026-01-31T18:20:53+01:00",
+          "tree_id": "de4eb2a9ba8bf5f51d104f237d38657d7f327781",
+          "url": "https://github.com/egidioln/QuaTorch/commit/b6cde899ba1dc390ed5a958b05a624f6bc3dc4a9"
+        },
+        "date": 1769880149341,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_slerp[original]",
+            "value": 0.6880015125707762,
+            "unit": "iter/sec",
+            "range": "stddev: 0.006244097244630397",
+            "extra": "mean: 1.4534851765999974 sec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_slerp[compiled]",
+            "value": 2.021023141081578,
+            "unit": "iter/sec",
+            "range": "stddev: 0.003000763645163578",
+            "extra": "mean: 494.7988866000003 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_slerp[compiled_max_autotune]",
+            "value": 2.032950654578284,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0035971533898978853",
+            "extra": "mean: 491.8958547999978 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_rotate_vector[original]",
+            "value": 5.949362494921598,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000933892166239758",
+            "extra": "mean: 168.08523616666568 msec\nrounds: 6"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_rotate_vector[compiled]",
+            "value": 22.310234510864284,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00014892660192997019",
+            "extra": "mean: 44.82247819999543 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_rotate_vector[numpy]",
+            "value": 11.761228007404,
+            "unit": "iter/sec",
+            "range": "stddev: 0.001116299889082336",
+            "extra": "mean: 85.02513507692171 msec\nrounds: 13"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_multiplication[original]",
+            "value": 3.7648593709745652,
+            "unit": "iter/sec",
+            "range": "stddev: 0.010255215675732898",
+            "extra": "mean: 265.614170799995 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_multiplication[compiled]",
+            "value": 43.19929540064171,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0002487062689468942",
+            "extra": "mean: 23.148525704545296 msec\nrounds: 44"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_multiplication[numpy]",
+            "value": 18.989631981862825,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0008047029411920801",
+            "extra": "mean: 52.660314899999605 msec\nrounds: 20"
           }
         ]
       }
