@@ -273,9 +273,7 @@ class Quaternion(torch.Tensor):
         if v.shape[-1] != 3:
             raise ValueError("Input vector must have shape (..., 3)")
 
-        w, x, y, z = self.to_wxyz()
-        w.unsqueeze_(-1)
-        imag_q = torch.stack([x, y, z], dim=-1)
+        w, imag_q = torch.Tensor(self).split([1, 3], dim=-1)
 
         m = w**2 + (imag_q**2).sum(dim=-1, keepdim=True)
 
