@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1769826085746,
+  "lastUpdate": 1769854209645,
   "repoUrl": "https://github.com/egidioln/QuaTorch",
   "entries": {
     "Benchmark": [
@@ -871,6 +871,93 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.0002860898273280263",
             "extra": "mean: 51.133716550005204 msec\nrounds: 20"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "12188889+egidioln@users.noreply.github.com",
+            "name": "Lucas Egidio",
+            "username": "egidioln"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d4d28bc9ab5440cef249e54ff933fe075eb1695a",
+          "message": "Merge pull request #3 from egidioln/feature-/le/faster-quaternion-rotation\n\nfeature: faster vector rotation",
+          "timestamp": "2026-01-31T11:08:31+01:00",
+          "tree_id": "2d28aef8122f4bc924caa24cf9e73e5462fd3d3e",
+          "url": "https://github.com/egidioln/QuaTorch/commit/d4d28bc9ab5440cef249e54ff933fe075eb1695a"
+        },
+        "date": 1769854208614,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_slerp[original]",
+            "value": 0.7135131631068129,
+            "unit": "iter/sec",
+            "range": "stddev: 0.009441501274349295",
+            "extra": "mean: 1.4015158398000012 sec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_slerp[compiled]",
+            "value": 2.028703905973742,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0015060115169221859",
+            "extra": "mean: 492.92555560000153 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_slerp[compiled_max_autotune]",
+            "value": 2.0358569159302875,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00101596363686356",
+            "extra": "mean: 491.19365520000144 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_rotate_vector[original]",
+            "value": 5.906916232682974,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0005823142521622829",
+            "extra": "mean: 169.29307283333372 msec\nrounds: 6"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_rotate_vector[compiled]",
+            "value": 22.321456174301563,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00003344518690846356",
+            "extra": "mean: 44.7999445999983 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_rotate_vector[numpy]",
+            "value": 11.843610890583577,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0009926190836763952",
+            "extra": "mean: 84.43370938461541 msec\nrounds: 13"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_multiplication[original]",
+            "value": 4.074335637669726,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0007462670992890609",
+            "extra": "mean: 245.43878780000057 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_multiplication[compiled]",
+            "value": 43.1675809523493,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00011905767476983325",
+            "extra": "mean: 23.165532511628438 msec\nrounds: 43"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_multiplication[numpy]",
+            "value": 19.138930172597966,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0004235730706324112",
+            "extra": "mean: 52.249524449999996 msec\nrounds: 20"
           }
         ]
       }
