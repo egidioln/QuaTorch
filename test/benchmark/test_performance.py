@@ -1,5 +1,6 @@
 import pytest
 import quaternion as np_quat
+import quaternionic
 import torch
 
 from quatorch.quaternion import Quaternion
@@ -27,6 +28,13 @@ def _to_numpy(data: torch.Tensor):
     data_numpy = data.cpu().numpy()
     if data_numpy.ndim == 2 and data_numpy.shape[1] == 4:
         return np_quat.as_quat_array(data_numpy)
+    return data_numpy
+
+
+def _to_quaternionic(data: torch.Tensor):
+    data_numpy = data.cpu().numpy()
+    if data_numpy.shape[-1] == 4:
+        return quaternionic.array(data_numpy)
     return data_numpy
 
 
@@ -67,11 +75,19 @@ slerp_compiled = torch.compile(Quaternion.slerp, fullgraph=True)
                 not torch.cuda.is_available(), reason="Requires CUDA"
             ),
         ),
+        # quaternionic
+        pytest.param(
+            annotate_convert_input(
+                lambda q1, q2, t: quaternionic.slerp(q1, q2, t),
+                _to_quaternionic,
+            ),
+            id="quaternionic",
+        ),
     ],
 )
 @pytest.mark.benchmark(
     group="test_performance_slerp",
-    warmup=False,
+    warmup=True,
 )
 def test_performance_slerp(benchmark, slerp):
     q1 = Quaternion(torch.randn(10000000, 4))
@@ -82,9 +98,7 @@ def test_performance_slerp(benchmark, slerp):
         x = slerp(q1, q2, t)
         _synchronize(x)
 
-    result = benchmark(
-        slerp_fn,
-    )
+    result = benchmark(slerp_fn)
 
 
 # Benchmark Rotate Vector
@@ -216,7 +230,7 @@ def multiplication_numpy(
 )
 @pytest.mark.benchmark(
     group="test_performance_multiplication",
-    warmup=False,
+    warmup=True,
 )
 def test_performance_multiplication(benchmark, multiplication):
     q1 = Quaternion(torch.randn(10_000_000, 4))
