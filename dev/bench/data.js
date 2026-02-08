@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1769880948992,
+  "lastUpdate": 1770588646625,
   "repoUrl": "https://github.com/egidioln/QuaTorch",
   "entries": {
     "Benchmark": [
@@ -1132,6 +1132,93 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.0037019407101543927",
             "extra": "mean: 65.27740974999752 msec\nrounds: 16"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "lucasegidio1@gmail.com",
+            "name": "Lucas Egidio",
+            "username": "egidioln"
+          },
+          "committer": {
+            "email": "lucasegidio1@gmail.com",
+            "name": "Lucas Egidio",
+            "username": "egidioln"
+          },
+          "distinct": true,
+          "id": "507baeef68994acf2127e1b0377ee8ad8bc311b7",
+          "message": "chore: dev env update ( gitignores .env, upgrades python version, vscode workspace settings",
+          "timestamp": "2026-02-08T23:09:06+01:00",
+          "tree_id": "946899e744a22add7d9913c795579846e7ef8226",
+          "url": "https://github.com/egidioln/QuaTorch/commit/507baeef68994acf2127e1b0377ee8ad8bc311b7"
+        },
+        "date": 1770588646312,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_slerp[original]",
+            "value": 0.6944890677784691,
+            "unit": "iter/sec",
+            "range": "stddev: 0.005818184710157191",
+            "extra": "mean: 1.4399074750000012 sec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_slerp[compiled]",
+            "value": 1.9487751785085392,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0010586876627214584",
+            "extra": "mean: 513.142824800002 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_slerp[compiled_max_autotune]",
+            "value": 1.953556056722565,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0007412385863301065",
+            "extra": "mean: 511.8870259999995 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_rotate_vector[original]",
+            "value": 6.032263665625699,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0005250967459342094",
+            "extra": "mean: 165.77524714286085 msec\nrounds: 7"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_rotate_vector[compiled]",
+            "value": 21.42573995582006,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0001915858278221378",
+            "extra": "mean: 46.67283379999958 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_rotate_vector[numpy]",
+            "value": 12.420400018376155,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0011030643658736076",
+            "extra": "mean: 80.5127047857143 msec\nrounds: 14"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_multiplication[original]",
+            "value": 3.6961424913197884,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0008468423621755552",
+            "extra": "mean: 270.5523400000004 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_multiplication[compiled]",
+            "value": 45.25443000731097,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0003465064170131651",
+            "extra": "mean: 22.097284173912858 msec\nrounds: 46"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_multiplication[numpy]",
+            "value": 19.31134928944065,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0005104113127540368",
+            "extra": "mean: 51.78302069999816 msec\nrounds: 20"
           }
         ]
       }
