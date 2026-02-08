@@ -1,17 +1,22 @@
-import numpy as np
 import pytest
 import quaternion as np_quat
 import torch
 
 from quatorch.quaternion import Quaternion
 
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# We use an annotation "convert_input" to specify how to convert the input for the timed function should be converted before the timed functions execution.
 
 
-def synchronize():
-    if DEVICE.type == "cuda":
+def annotate_convert_input(func, convert_input=lambda x: x):
+    func.__annotations__["convert_input"] = convert_input
+    return func
+
+
+def synchronize(data: torch.Tensor):
+    device = data.device
+    if device == "cuda":
         torch.cuda.synchronize()
-    if DEVICE.type == "cpu":
+    if device == "cpu":
         torch.cpu.synchronize()
 
 
@@ -41,42 +46,71 @@ def synchronize():
     warmup=False,
 )
 def test_performance_slerp(benchmark, slerp):
-    q1 = Quaternion(torch.randn(10000000, 4, device=DEVICE))
-    q2 = Quaternion(torch.randn(10000000, 4, device=DEVICE))
-    t = torch.rand(2, 1, 1, device=DEVICE)
+    q1 = Quaternion(torch.randn(10000000, 4))
+    q2 = Quaternion(torch.randn(10000000, 4))
+    t = torch.rand(2, 1, 1)
 
     def slerp_fn():
         x = slerp(q1, q2, t)
-        synchronize()
+        synchronize(x)
 
     result = benchmark(
         slerp_fn,
     )
 
 
-def rotate_numpy(q: np_quat.quaternion, vectors: np.ndarray) -> np.ndarray:
-    rotated_vectors_np = np_quat.rotate_vectors(q, vectors)
-
-    return rotated_vectors_np
+# Benchmark Rotate Vector
 
 
-rotate_numpy.__annotations__["convert_input"] = (
-    lambda x: np_quat.as_quat_array(x.cpu().numpy())
-    if isinstance(x, Quaternion)
-    else x.cpu().numpy()
+compiled_rotate_vector = torch.compile(
+    Quaternion.rotate_vector,
+    fullgraph=True,
 )
+
+
+def _to_numpy(data: torch.Tensor):
+    data_numpy = data.cpu().numpy()
+    if data_numpy.ndim == 2 and data_numpy.shape[1] == 4:
+        return np_quat.as_quat_array(data_numpy)
+    return data_numpy
+
+
+rotate_numpy = annotate_convert_input(np_quat.rotate_vectors, convert_input=_to_numpy)
 
 
 @pytest.mark.parametrize(
     "rotate",
     [
-        pytest.param(Quaternion.rotate_vector, id="original"),
         pytest.param(
-            torch.compile(
-                Quaternion.rotate_vector,
-                fullgraph=True,
+            annotate_convert_input(Quaternion.rotate_vector, lambda x: x.cpu()),
+            id="cpu_eager",
+        ),
+        pytest.param(
+            annotate_convert_input(
+                lambda *_: compiled_rotate_vector(*_),
+                lambda x: x.cpu(),
             ),
-            id="compiled",
+            id="cpu_compiled",
+        ),
+        pytest.param(
+            annotate_convert_input(
+                lambda *_: compiled_rotate_vector(*_),
+                lambda x: x.cuda(),
+            ),
+            id="cuda_compiled",
+            marks=pytest.mark.skipif(
+                not torch.cuda.is_available(), reason="Requires CUDA"
+            ),
+        ),
+        pytest.param(
+            annotate_convert_input(
+                lambda *_: Quaternion.rotate_vector(*_),
+                lambda x: x.cuda(),
+            ),
+            id="cuda_eager",
+            marks=pytest.mark.skipif(
+                not torch.cuda.is_available(), reason="Requires CUDA"
+            ),
         ),
         pytest.param(
             rotate_numpy,
@@ -86,11 +120,11 @@ rotate_numpy.__annotations__["convert_input"] = (
 )
 @pytest.mark.benchmark(
     group="test_performance_rotate_vector",
-    warmup=False,
+    warmup=True,
 )
 def test_performance_rotate_vector(benchmark, rotate, num_points=10000000):
-    q1 = Quaternion(torch.randn(1, 4, device=DEVICE))
-    vectors = torch.randn(num_points, 3, device=DEVICE)
+    q1 = Quaternion(torch.randn(1, 4))
+    vectors = torch.randn(num_points, 3)
 
     convert_input = rotate.__annotations__.get("convert_input", lambda x: x)
     q1 = convert_input(q1)
@@ -98,7 +132,7 @@ def test_performance_rotate_vector(benchmark, rotate, num_points=10000000):
 
     def rotate_vector():
         x = rotate(q1, vectors)
-        synchronize()
+        synchronize(x)
 
     result = benchmark(
         rotate_vector,
@@ -122,17 +156,41 @@ def multiplication_numpy(
     return result_np
 
 
-multiplication_numpy.__annotations__["convert_input"] = lambda q: np_quat.as_quat_array(
-    q.cpu().numpy()
-)
-
-
 @pytest.mark.parametrize(
     "multiplication",
     [
-        pytest.param(multiplication, id="original"),
-        pytest.param(multiplication_compiled, id="compiled"),
-        pytest.param(multiplication_numpy, id="numpy"),
+        pytest.param(
+            annotate_convert_input(lambda *_: multiplication(*_), lambda x: x.cpu()),
+            id="cpu_eager",
+        ),
+        pytest.param(
+            annotate_convert_input(lambda *_: multiplication(*_), lambda x: x.cuda()),
+            id="cuda_eager",
+            marks=pytest.mark.skipif(
+                not torch.cuda.is_available(), reason="Requires CUDA"
+            ),
+        ),
+        pytest.param(
+            annotate_convert_input(
+                lambda *_: multiplication_compiled(*_),
+                lambda x: x.cpu(),
+            ),
+            id="cpu_compiled",
+        ),
+        pytest.param(
+            annotate_convert_input(
+                lambda *_: multiplication_compiled(*_),
+                lambda x: x.cuda(),
+            ),
+            id="cuda_compiled",
+            marks=pytest.mark.skipif(
+                not torch.cuda.is_available(), reason="Requires CUDA"
+            ),
+        ),
+        pytest.param(
+            annotate_convert_input(lambda q1, q2: q1 * q2, convert_input=_to_numpy),
+            id="numpy",
+        ),
     ],
 )
 @pytest.mark.benchmark(
@@ -140,28 +198,28 @@ multiplication_numpy.__annotations__["convert_input"] = lambda q: np_quat.as_qua
     warmup=False,
 )
 def test_performance_multiplication(benchmark, multiplication):
-    q1 = Quaternion(torch.randn(10_000_000, 4, device=DEVICE))
-    q2 = Quaternion(torch.randn(10_000_000, 4, device=DEVICE))
+    q1 = Quaternion(torch.randn(10_000_000, 4))
+    q2 = Quaternion(torch.randn(10_000_000, 4))
 
     convert_input = multiplication.__annotations__.get("convert_input", lambda x: x)
     q1 = convert_input(q1)
     q2 = convert_input(q2)
 
-    for warmup_n in range(2):
-        q = multiplication(q1, q2)
-        synchronize()
+    def multiplication_fn():
+        x = multiplication(q1, q2)
+        synchronize(x)
 
-    synchronize()
+    for warmup_n in range(2):
+        multiplication_fn()
+
     result = benchmark(
-        multiplication,
-        q1,
-        q2,
+        multiplication_fn,
     )
 
 
 def test_compile_multiplication_match():
-    q1 = Quaternion(torch.randn(10000, 4, device=DEVICE))
-    q2 = Quaternion(torch.randn(10000, 4, device=DEVICE))
+    q1 = Quaternion(torch.randn(10000, 4))
+    q2 = Quaternion(torch.randn(10000, 4))
     result_compiled = multiplication_compiled(q1, q2)
     result = multiplication(q1, q2)
 
