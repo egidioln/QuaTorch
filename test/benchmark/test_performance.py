@@ -14,12 +14,13 @@ def annotate_convert_input(func, convert_input=lambda x: x):
 
 def _synchronize(data: torch.Tensor):
     device = data.device
-    if device == "cuda":
+    if torch.device(device).type == "cuda":
         torch.cuda.synchronize()
-        raise RuntimeError("CUDA synchronization is not supported in this environment.")
-    if device == "cpu":
+        return
+    if torch.device(device).type == "cpu":
         torch.cpu.synchronize()
-        raise RuntimeError("CPU synchronization is not supported in this environment.")
+        return
+    raise RuntimeError("Unsupported device")
 
 
 def _to_numpy(data: torch.Tensor):
