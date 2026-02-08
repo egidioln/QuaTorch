@@ -1,6 +1,6 @@
 [project]
 name = "quatorch"
-version = "0.2.0"
+version = "0.3.0-dev"
 description = "Quaternion operations in pure PyTorch"
 keywords = ["quaternion", "rotation", "3d", "orientation",  "pytorch"]
 readme = "README.md"
@@ -49,6 +49,7 @@ dev = [
     "pytest",
     "pytest-benchmark",
     "pytest-cov",
+    "quaternionic>=1.0.17",
     "ruff",
     "setuptools",
     "sphinx",
