@@ -18,3 +18,4 @@ coverage.json
 docs/_build/
 
 benchmark_output.json
+.env
