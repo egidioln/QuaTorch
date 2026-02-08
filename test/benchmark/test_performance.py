@@ -12,32 +12,59 @@ def annotate_convert_input(func, convert_input=lambda x: x):
     return func
 
 
-def synchronize(data: torch.Tensor):
+def _synchronize(data: torch.Tensor):
     device = data.device
     if device == "cuda":
         torch.cuda.synchronize()
+        raise RuntimeError("CUDA synchronization is not supported in this environment.")
     if device == "cpu":
         torch.cpu.synchronize()
+        raise RuntimeError("CPU synchronization is not supported in this environment.")
+
+
+def _to_numpy(data: torch.Tensor):
+    data_numpy = data.cpu().numpy()
+    if data_numpy.ndim == 2 and data_numpy.shape[1] == 4:
+        return np_quat.as_quat_array(data_numpy)
+    return data_numpy
+
+
+slerp_compiled = torch.compile(Quaternion.slerp, fullgraph=True)
 
 
 @pytest.mark.parametrize(
     "slerp",
     [
-        pytest.param(Quaternion.slerp, id="original"),
         pytest.param(
-            torch.compile(
-                Quaternion.slerp,
-                fullgraph=True,
-            ),
-            id="compiled",
+            annotate_convert_input(Quaternion.slerp, lambda x: x.cpu()),
+            id="cpu_eager",
         ),
         pytest.param(
-            torch.compile(
-                Quaternion.slerp,
-                fullgraph=True,
-                mode="max-autotune",
+            annotate_convert_input(
+                lambda *_: slerp_compiled(*_),
+                lambda x: x.cpu(),
             ),
-            id="compiled_max_autotune",
+            id="cpu_compiled",
+        ),
+        pytest.param(
+            annotate_convert_input(
+                lambda *_: slerp_compiled(*_),
+                lambda x: x.cuda(),
+            ),
+            id="cuda_compiled",
+            marks=pytest.mark.skipif(
+                not torch.cuda.is_available(), reason="Requires CUDA"
+            ),
+        ),
+        pytest.param(
+            annotate_convert_input(
+                Quaternion.slerp,
+                lambda x: x.cuda(),
+            ),
+            id="cuda_eager",
+            marks=pytest.mark.skipif(
+                not torch.cuda.is_available(), reason="Requires CUDA"
+            ),
         ),
     ],
 )
@@ -52,7 +79,7 @@ def test_performance_slerp(benchmark, slerp):
 
     def slerp_fn():
         x = slerp(q1, q2, t)
-        synchronize(x)
+        _synchronize(x)
 
     result = benchmark(
         slerp_fn,
@@ -66,13 +93,6 @@ compiled_rotate_vector = torch.compile(
     Quaternion.rotate_vector,
     fullgraph=True,
 )
-
-
-def _to_numpy(data: torch.Tensor):
-    data_numpy = data.cpu().numpy()
-    if data_numpy.ndim == 2 and data_numpy.shape[1] == 4:
-        return np_quat.as_quat_array(data_numpy)
-    return data_numpy
 
 
 rotate_numpy = annotate_convert_input(np_quat.rotate_vectors, convert_input=_to_numpy)
@@ -132,7 +152,7 @@ def test_performance_rotate_vector(benchmark, rotate, num_points=10000000):
 
     def rotate_vector():
         x = rotate(q1, vectors)
-        synchronize(x)
+        _synchronize(x)
 
     result = benchmark(
         rotate_vector,
@@ -207,7 +227,7 @@ def test_performance_multiplication(benchmark, multiplication):
 
     def multiplication_fn():
         x = multiplication(q1, q2)
-        synchronize(x)
+        _synchronize(x)
 
     for warmup_n in range(2):
         multiplication_fn()
