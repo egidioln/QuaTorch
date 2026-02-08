@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1770588646625,
+  "lastUpdate": 1770592886786,
   "repoUrl": "https://github.com/egidioln/QuaTorch",
   "entries": {
     "Benchmark": [
@@ -1219,6 +1219,93 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.0005104113127540368",
             "extra": "mean: 51.78302069999816 msec\nrounds: 20"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "lucasegidio1@gmail.com",
+            "name": "Lucas Egidio",
+            "username": "egidioln"
+          },
+          "committer": {
+            "email": "lucasegidio1@gmail.com",
+            "name": "Lucas Egidio",
+            "username": "egidioln"
+          },
+          "distinct": true,
+          "id": "feaf26bd2ce8c8126c5d49cbb131f71bbcfb5749",
+          "message": "test: better annotation interface for benchmark",
+          "timestamp": "2026-02-09T00:19:24+01:00",
+          "tree_id": "26b8c2ec1a20340a6e214532ab8ce2e6847c4c74",
+          "url": "https://github.com/egidioln/QuaTorch/commit/feaf26bd2ce8c8126c5d49cbb131f71bbcfb5749"
+        },
+        "date": 1770592886206,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_slerp[original]",
+            "value": 0.7190378565371084,
+            "unit": "iter/sec",
+            "range": "stddev: 0.005428572089013458",
+            "extra": "mean: 1.390747358999994 sec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_slerp[compiled]",
+            "value": 2.0209284423182283,
+            "unit": "iter/sec",
+            "range": "stddev: 0.005181719155269419",
+            "extra": "mean: 494.82207239999525 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_slerp[compiled_max_autotune]",
+            "value": 2.042911256144236,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0012130219599631416",
+            "extra": "mean: 489.4975231999979 msec\nrounds: 5"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_rotate_vector[cpu_eager]",
+            "value": 5.942691641271909,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0005122452912164444",
+            "extra": "mean: 168.27391700000285 msec\nrounds: 6"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_rotate_vector[cpu_compiled]",
+            "value": 22.700069565054182,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00014385446981775708",
+            "extra": "mean: 44.05272843478235 msec\nrounds: 23"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_rotate_vector[numpy]",
+            "value": 11.933218281076078,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00046180807110084875",
+            "extra": "mean: 83.79969061538233 msec\nrounds: 13"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_multiplication[cpu_eager]",
+            "value": 65.60486459718304,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0002476844291747846",
+            "extra": "mean: 15.242772104478032 msec\nrounds: 67"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_multiplication[cpu_compiled]",
+            "value": 65.1453465751916,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00025928731489755397",
+            "extra": "mean: 15.350290582087657 msec\nrounds: 67"
+          },
+          {
+            "name": "test/benchmark/test_performance.py::test_performance_multiplication[numpy]",
+            "value": 19.305919471465767,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0003284172549210147",
+            "extra": "mean: 51.79758475000398 msec\nrounds: 20"
           }
         ]
       }
