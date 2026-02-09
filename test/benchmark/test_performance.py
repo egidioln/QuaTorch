@@ -45,7 +45,7 @@ slerp_compiled = torch.compile(Quaternion.slerp, fullgraph=True)
     "slerp",
     [
         pytest.param(
-            annotate_convert_input(Quaternion.slerp, lambda x: x.cpu()),
+            annotate_convert_input(lambda *_: Quaternion.slerp(*_), lambda x: x.cpu()),
             id="cpu_eager",
         ),
         pytest.param(
@@ -67,7 +67,7 @@ slerp_compiled = torch.compile(Quaternion.slerp, fullgraph=True)
         ),
         pytest.param(
             annotate_convert_input(
-                Quaternion.slerp,
+                lambda *_: Quaternion.slerp(*_),
                 lambda x: x.cuda(),
             ),
             id="cuda_eager",
@@ -75,7 +75,6 @@ slerp_compiled = torch.compile(Quaternion.slerp, fullgraph=True)
                 not torch.cuda.is_available(), reason="Requires CUDA"
             ),
         ),
-        # quaternionic
         pytest.param(
             annotate_convert_input(
                 lambda q1, q2, t: quaternionic.slerp(q1, q2, t),
@@ -90,9 +89,9 @@ slerp_compiled = torch.compile(Quaternion.slerp, fullgraph=True)
     warmup=True,
 )
 def test_performance_slerp(benchmark, slerp):
-    q1 = Quaternion(torch.randn(10000000, 4))
-    q2 = Quaternion(torch.randn(10000000, 4))
-    t = torch.rand(2, 1, 1)
+    q1 = Quaternion(torch.randn(10_000, 4))
+    q2 = Quaternion(torch.randn(10_000, 4))
+    t = torch.rand(100, 1, 1)
 
     def slerp_fn():
         x = slerp(q1, q2, t)
@@ -151,13 +150,19 @@ rotate_numpy = annotate_convert_input(np_quat.rotate_vectors, convert_input=_to_
             rotate_numpy,
             id="numpy",
         ),
+        pytest.param(
+            annotate_convert_input(
+                lambda q, v: q.rotate(v), convert_input=_to_quaternionic
+            ),
+            id="quaternionic",
+        ),
     ],
 )
 @pytest.mark.benchmark(
     group="test_performance_rotate_vector",
     warmup=True,
 )
-def test_performance_rotate_vector(benchmark, rotate, num_points=10000000):
+def test_performance_rotate_vector(benchmark, rotate, num_points=100_000):
     q1 = Quaternion(torch.randn(1, 4))
     vectors = torch.randn(num_points, 3)
 
@@ -174,12 +179,8 @@ def test_performance_rotate_vector(benchmark, rotate, num_points=10000000):
     )
 
 
-def multiplication(q1: Quaternion, q2: Quaternion) -> Quaternion:
-    return Quaternion.mul(q1, q2)
-
-
 multiplication_compiled = torch.compile(
-    multiplication,
+    Quaternion.mul,
     fullgraph=True,
 )
 
@@ -195,11 +196,11 @@ def multiplication_numpy(
     "multiplication",
     [
         pytest.param(
-            annotate_convert_input(lambda *_: multiplication(*_), lambda x: x.cpu()),
+            annotate_convert_input(lambda *_: Quaternion.mul(*_), lambda x: x.cpu()),
             id="cpu_eager",
         ),
         pytest.param(
-            annotate_convert_input(lambda *_: multiplication(*_), lambda x: x.cuda()),
+            annotate_convert_input(lambda *_: Quaternion.mul(*_), lambda x: x.cuda()),
             id="cuda_eager",
             marks=pytest.mark.skipif(
                 not torch.cuda.is_available(), reason="Requires CUDA"
@@ -225,6 +226,12 @@ def multiplication_numpy(
         pytest.param(
             annotate_convert_input(lambda q1, q2: q1 * q2, convert_input=_to_numpy),
             id="numpy",
+        ),
+        pytest.param(
+            annotate_convert_input(
+                lambda q1, q2: q1 * q2, convert_input=_to_quaternionic
+            ),
+            id="quaternionic",
         ),
     ],
 )
@@ -256,6 +263,6 @@ def test_compile_multiplication_match():
     q1 = Quaternion(torch.randn(10000, 4))
     q2 = Quaternion(torch.randn(10000, 4))
     result_compiled = multiplication_compiled(q1, q2)
-    result = multiplication(q1, q2)
+    result = q1 * q2
 
     assert torch.allclose(result, result_compiled, atol=1e-6)
