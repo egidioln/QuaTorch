@@ -97,7 +97,7 @@ def test_performance_slerp(benchmark, slerp):
         x = slerp(q1, q2, t)
         _synchronize(x)
 
-    result = benchmark(slerp_fn)
+    _ = benchmark(slerp_fn)
 
 
 # Benchmark Rotate Vector
@@ -174,7 +174,7 @@ def test_performance_rotate_vector(benchmark, rotate, num_points=100_000):
         x = rotate(q1, vectors)
         _synchronize(x)
 
-    result = benchmark(
+    _ = benchmark(
         rotate_vector,
     )
 
@@ -254,7 +254,7 @@ def test_performance_multiplication(benchmark, multiplication):
     for warmup_n in range(2):
         multiplication_fn()
 
-    result = benchmark(
+    _ = benchmark(
         multiplication_fn,
     )
 
