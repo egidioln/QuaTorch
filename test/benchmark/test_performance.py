@@ -162,9 +162,9 @@ rotate_numpy = annotate_convert_input(np_quat.rotate_vectors, convert_input=_to_
     group="test_performance_rotate_vector",
     warmup=True,
 )
-def test_performance_rotate_vector(benchmark, rotate, num_points=100_000):
-    q1 = Quaternion(torch.randn(1, 4))
-    vectors = torch.randn(num_points, 3)
+def test_performance_rotate_vector(benchmark, rotate, num_points=10_000_000):
+    q1 = Quaternion(torch.randn(num_points, 4))
+    vectors = torch.randn(1, 3)
 
     convert_input = rotate.__annotations__.get("convert_input", lambda x: x)
     q1 = convert_input(q1)
