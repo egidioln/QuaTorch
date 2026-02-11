@@ -71,13 +71,13 @@ Multiplication of two vectors of `n` quaternions. Quatorch (CPU Compiled) perfor
 
 ### Vector Rotation
 
-Rotation of a 3D vector by a vector of `n` quaternions. Quatorch (CUDA Compiled) performed 21.32x faster than `numpy-quaternion` and 4.89x faster than `quaternionic` (geometric mean across all input sizes).
+Rotation of a 3D vector by a vector of `n` quaternions. Quatorch (CPU Compiled) performed 21.32x faster than `numpy-quaternion` and 4.89x faster than `quaternionic` (geometric mean across all input sizes).
 
 ![Rotate Vector Benchmark](_static/test_performance_rotate_vector_benchmark.png)
 
 
 ### Spherical Linear Interpolation (SLERP)
 
-SLERP interpolation between two vectors of `n` quaternions. Quatorch (CUDA Compiled) performed 14.32x faster than `quaternionic` (geometric mean across all input sizes).
+SLERP interpolation between two vectors of `n` quaternions. Quatorch (CPU Compiled) performed 14.32x faster than `quaternionic` (geometric mean across all input sizes).
 
 ![SLERP Benchmark](_static/test_performance_slerp_benchmark.png)
