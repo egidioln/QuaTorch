@@ -65,6 +65,7 @@ This project is MIT licensed — see the `LICENSE.md` file for details.
 :maxdepth: 2
 examples.md
 api
+benchmark
 GitHub <https://github.com/egidioln/QuaTorch>
 PyPI <https://pypi.org/project/quatorch/>
 ``` 
