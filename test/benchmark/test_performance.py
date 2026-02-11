@@ -485,6 +485,113 @@ def _plot_benchmark_group(group_name, benchmarks, output_dir):
     print(f"Plot saved as '{output_file}'")
 
 
+def compute_performance_comparison(benchmark_file):
+    """
+    Compute geometric mean of performance improvements between cpu_compiled and other methods.
+
+    Args:
+        benchmark_file: Path to the benchmark output JSON file
+    """
+    import json
+
+    import numpy as np
+
+    if not benchmark_file.exists():
+        print(f"Benchmark output file not found: {benchmark_file}")
+        return
+
+    # Load benchmark data
+    benchmark_data = json.loads(benchmark_file.read_text())
+
+    # Organize data by method and size
+    results = {}  # {group: {method: {size: mean_time}}}
+
+    for benchmark in benchmark_data.get("benchmarks", []):
+        name = benchmark["name"]
+        group = benchmark.get("group", "default")
+        stats = benchmark["stats"]
+
+        # Parse the benchmark name
+        if "[" in name and "]" in name:
+            params = name[name.index("[") + 1 : name.index("]")]
+            parts = params.split("-")
+
+            if len(parts) == 2:
+                method, size_str = parts
+                try:
+                    size = int(size_str)
+                except ValueError:
+                    continue
+
+                if group not in results:
+                    results[group] = {}
+                if method not in results[group]:
+                    results[group][method] = {}
+
+                # Store mean time in microseconds
+                results[group][method][size] = stats["mean"] * 1e6
+
+    # Compute geometric mean of speedup ratios
+    print("\n" + "=" * 80)
+    print("PERFORMANCE COMPARISON: cpu_compiled vs other methods")
+    print("=" * 80)
+
+    for group, methods_data in results.items():
+        if "cpu_compiled" not in methods_data:
+            continue
+
+        print(f"\n{group.replace('test_performance_', '').replace('_', ' ').title()}:")
+        print("-" * 80)
+
+        cpu_compiled = methods_data["cpu_compiled"]
+
+        # Compare against numpy and quaternionic
+        for compare_method in ["numpy", "quaternionic"]:
+            if compare_method not in methods_data:
+                continue
+
+            compare_data = methods_data[compare_method]
+
+            # Find common sizes
+            common_sizes = sorted(set(cpu_compiled.keys()) & set(compare_data.keys()))
+
+            if not common_sizes:
+                continue
+
+            ratios = []
+            print(f"\n  cpu_compiled vs {compare_method}:")
+
+            for size in common_sizes:
+                cpu_time = cpu_compiled[size]
+                compare_time = compare_data[size]
+                speedup = compare_time / cpu_time
+                ratios.append(speedup)
+
+                if speedup > 1:
+                    print(f"    Size {size:>10,}: {speedup:6.2f}x faster")
+                else:
+                    print(f"    Size {size:>10,}: {1 / speedup:6.2f}x slower")
+
+            # Compute geometric mean
+            if ratios:
+                geom_mean = np.exp(np.mean(np.log(ratios)))
+                print(f"\n  Geometric mean speedup: {geom_mean:.2f}x")
+
+                if geom_mean > 1:
+                    print(
+                        f"  → cpu_compiled is {geom_mean:.2f}x faster than {compare_method} on average"
+                    )
+                else:
+                    print(
+                        f"  → cpu_compiled is {1 / geom_mean:.2f}x slower than {compare_method} on average"
+                    )
+
+    print("\n" + "=" * 80)
+    print("Note: Geometric mean is computed across all common sizes.")
+    print("Speedup > 1 means cpu_compiled is faster, < 1 means it's slower.")
+    print("=" * 80 + "\n")
+
+
 if __name__ == "__main__":
     import argparse
     from pathlib import Path
@@ -498,3 +605,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     plot_benchmark_results(args.benchmark_file)
+    compute_performance_comparison(args.benchmark_file)

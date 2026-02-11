@@ -65,19 +65,19 @@ The plots will be saved as PNG files in the project root directory.
 
 ### Quaternion Multiplication
 
-Multiplication of two vectors of `n` quaternions.
+Multiplication of two vectors of `n` quaternions. Quatorch (CPU Compiled) performed 1.33x faster than `numpy-quaternion` and 5.11x faster than `quaternionic` (geometric mean across all input sizes).
 
 ![Multiplication Benchmark](_static/test_performance_multiplication_benchmark.png)
 
 ### Vector Rotation
 
-Rotation of a 3D vector by a vector of `n` quaternions.
+Rotation of a 3D vector by a vector of `n` quaternions. Quatorch (CUDA Compiled) performed 21.32x faster than `numpy-quaternion` and 4.89x faster than `quaternionic` (geometric mean across all input sizes).
 
 ![Rotate Vector Benchmark](_static/test_performance_rotate_vector_benchmark.png)
 
 
 ### Spherical Linear Interpolation (SLERP)
 
-SLERP interpolation between two vectors of `n` quaternions.
+SLERP interpolation between two vectors of `n` quaternions. Quatorch (CUDA Compiled) performed 14.32x faster than `quaternionic` (geometric mean across all input sizes).
 
 ![SLERP Benchmark](_static/test_performance_slerp_benchmark.png)
