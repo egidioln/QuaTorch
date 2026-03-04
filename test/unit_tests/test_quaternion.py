@@ -322,6 +322,11 @@ def test_from_rotation_matrix_under_edge_case_when_R_is_symmetric_and_trace_is_n
                 [-1.0000, 0.0000, 0.0000],
                 [0.0000, 0.0000, 1.0000],
             ],
+            [
+                [-0.2440169, 0.9106836, -0.3333333],
+                [0.3333333, -0.2440169, -0.9106836],
+                [-0.9106836, -0.3333333, -0.2440169],
+            ],
         ]
     )
     q = Quaternion.from_rotation_matrix(matrix)
@@ -344,12 +349,19 @@ def test_from_rotation_matrix_under_edge_case_when_R_is_symmetric_and_trace_is_n
         0.0,
         -0.7071067690849304,
     )
+    q_3 = Quaternion(
+        -0.258819,
+        -0.5576775,
+        -0.5576775,
+        0.5576775,
+    )
 
     # division between expected and computed should be close to 1 or -1, as these are the same quaternion.
+    expected_quaternion = torch.stack([q_0, q_1, q_2, q_3])
     assert torch.all(
         torch.all(
             torch.isclose(
-                q.normalize() / Quaternion(torch.stack([q_0, q_1, q_2])),
+                q.normalize() / expected_quaternion,
                 Quaternion(1.0, 0.0, 0.0, 0.0),
                 atol=1e-3,
             ),
@@ -357,7 +369,7 @@ def test_from_rotation_matrix_under_edge_case_when_R_is_symmetric_and_trace_is_n
         )
         | torch.all(
             torch.isclose(
-                q.normalize() / Quaternion(torch.stack([q_0, q_1, q_2])),
+                q.normalize() / expected_quaternion,
                 Quaternion(-1.0, 0.0, 0.0, 0.0),
                 atol=1e-3,
             ),
