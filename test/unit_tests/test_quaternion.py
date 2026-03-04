@@ -301,3 +301,66 @@ def test_from_rotation_matrix_under_edge_case_when_R_is_symmetric():
         torch.stack([q_0, q_1, q_2]),
         atol=1e-3,
     )
+
+
+def test_from_rotation_matrix_under_edge_case_when_R_is_symmetric_and_trace_is_negative():
+    matrix = torch.tensor(
+        [
+            [
+                [-0.9925, -0.1025, 0.0669],
+                [-0.1022, 0.3934, -0.9137],
+                [0.0673, -0.9136, -0.4009],
+            ],
+            [
+                # negative-definite (tr < 0)
+                [-0.3333333, 0.6666667, -0.6666667],
+                [0.6666667, -0.3333333, -0.6666667],
+                [-0.6666667, -0.6666667, -0.3333333],
+            ],
+            [
+                [0.0000, 1.0000, 0.0000],
+                [-1.0000, 0.0000, 0.0000],
+                [0.0000, 0.0000, 1.0000],
+            ],
+        ]
+    )
+    q = Quaternion.from_rotation_matrix(matrix)
+
+    q_0 = Quaternion(
+        -0.00012604775963941,
+        -0.0613069073653219,
+        0.834683917470865,
+        -0.5473063174646830,
+    )
+    q_1 = Quaternion(
+        0,
+        -0.5773503,
+        -0.5773503,
+        0.5773503,
+    )
+    q_2 = Quaternion(
+        0.7071067690849304,
+        0.0,
+        0.0,
+        -0.7071067690849304,
+    )
+
+    # division between expected and computed should be close to 1 or -1, as these are the same quaternion.
+    assert torch.all(
+        torch.all(
+            torch.isclose(
+                q.normalize() / Quaternion(torch.stack([q_0, q_1, q_2])),
+                Quaternion(1.0, 0.0, 0.0, 0.0),
+                atol=1e-3,
+            ),
+            dim=1,
+        )
+        | torch.all(
+            torch.isclose(
+                q.normalize() / Quaternion(torch.stack([q_0, q_1, q_2])),
+                Quaternion(-1.0, 0.0, 0.0, 0.0),
+                atol=1e-3,
+            ),
+            dim=1,
+        )
+    ).item()
