@@ -188,13 +188,18 @@ class Quaternion(torch.Tensor):
 
         trace = R[..., 0, 0] + R[..., 1, 1] + R[..., 2, 2]
         w = torch.sqrt(1.0 + trace) / 2.0
-        x = (R[..., 2, 1] - R[..., 1, 2]) / (4.0 * w)
-        y = (R[..., 0, 2] - R[..., 2, 0]) / (4.0 * w)
-        z = (R[..., 1, 0] - R[..., 0, 1]) / (4.0 * w)
+        asR = (R - R.transpose(-2, -1)) / (4.0 * w.view(-1, 1, 1))
+        x = asR[..., 2, 1]
+        y = asR[..., 0, 2]
+        z = asR[..., 1, 0]
 
         # Symmetric R case should be handled separately to avoid division by zero
         # See Palais, B., Palais, R. Euler’s fixed point theorem: The axis of a rotation. J. fixed point theory appl. 2, 215–220 (2007). https://doi.org/10.1007/s11784-007-0042-5
-        symmetric_mask = trace <= 0
+        #
+        # To determine if a matrix is symmetric compute the norm of the skew-symmetric part, i.e., R - R^T. And verify if the off diagonal terms (the x, y, z) are all zero or infinite (due to division by w)
+        norm_sk_sym_part = torch.stack([x, y, z]).norm(dim=0)
+
+        symmetric_mask = (norm_sk_sym_part < 1e-4) | ~torch.isfinite(norm_sk_sym_part)
 
         uuT = (R[symmetric_mask] + torch.eye(3, device=R.device, dtype=R.dtype)) / 2
         vs_norm = torch.norm(uuT, dim=-2, keepdim=True)
