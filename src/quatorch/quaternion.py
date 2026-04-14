@@ -199,7 +199,7 @@ class Quaternion(torch.Tensor):
         # To determine if a matrix is symmetric compute the norm of the skew-symmetric part, i.e., R - R^T. And verify if the off diagonal terms (the x, y, z) are all zero or infinite (due to division by w)
         norm_sk_sym_part = torch.stack([x, y, z]).norm(dim=0)
 
-        symmetric_mask = (norm_sk_sym_part < 1e-4) | ~torch.isfinite(norm_sk_sym_part)
+        symmetric_mask = torch.isclose(w, torch.tensor(0).to(w), atol=1e-4)
 
         uuT = (R[symmetric_mask] + torch.eye(3, device=R.device, dtype=R.dtype)) / 2
         vs_norm = torch.norm(uuT, dim=-2, keepdim=True)
