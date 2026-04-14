@@ -193,15 +193,18 @@ class Quaternion(torch.Tensor):
         y = asR[..., 0, 2]
         z = asR[..., 1, 0]
 
-        # Symmetric R case should be handled separately to avoid division by zero
+        # SPECIAL CASE: Symmetric R case should be handled separately to avoid division by zero
         # See Palais, B., Palais, R. Euler’s fixed point theorem: The axis of a rotation. J. fixed point theory appl. 2, 215–220 (2007). https://doi.org/10.1007/s11784-007-0042-5
         #
         # To determine if a matrix is symmetric compute the norm of the skew-symmetric part, i.e., R - R^T. And verify if the off diagonal terms (the x, y, z) are all zero or infinite (due to division by w)
         norm_sk_sym_part = torch.stack([x, y, z]).norm(dim=0)
 
-        symmetric_mask = torch.isclose(w, torch.tensor(0).to(w), atol=1e-4)
+        symmetric_mask = (norm_sk_sym_part < 1e-4) | ~torch.isfinite(norm_sk_sym_part)
+        identity_mask = torch.isclose(trace, torch.tensor(3.0).to(trace), atol=1e-4)
+        # Excluding identity, as it's symmetric, but it's not problematic
+        mask = symmetric_mask & ~identity_mask
 
-        uuT = (R[symmetric_mask] + torch.eye(3, device=R.device, dtype=R.dtype)) / 2
+        uuT = (R[mask] + torch.eye(3, device=R.device, dtype=R.dtype)) / 2
         vs_norm = torch.norm(uuT, dim=-2, keepdim=True)
         v = torch.einsum(
             "... cd, ... cd-> ...c", uuT, torch.softmax(vs_norm * 100, dim=-1)
@@ -209,9 +212,11 @@ class Quaternion(torch.Tensor):
         u = v / v.norm(dim=-1, keepdim=True)
         x_sym, y_sym, z_sym = u.unbind(-1)
 
-        x[symmetric_mask] = x_sym
-        y[symmetric_mask] = y_sym
-        z[symmetric_mask] = z_sym
+        x[mask] = x_sym
+        y[mask] = y_sym
+        z[mask] = z_sym
+
+        # END SPECIAL CASE
 
         q = torch.stack([w, x, y, z], dim=-1)
         q = q.reshape(*B, 4)
