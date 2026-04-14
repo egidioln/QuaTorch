@@ -274,6 +274,7 @@ def test_from_rotation_matrix_under_edge_case_when_R_is_symmetric():
                 [-1.0000, 0.0000, 0.0000],
                 [0.0000, 0.0000, 1.0000],
             ],
+            torch.eye(3),
         ]
     )
     q = Quaternion.from_rotation_matrix(matrix)
@@ -296,9 +297,15 @@ def test_from_rotation_matrix_under_edge_case_when_R_is_symmetric():
         0.0,
         -0.7071067690849304,
     )
+    q_3 = Quaternion(
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+    )
     assert torch.allclose(
         q.normalize(),
-        torch.stack([q_0, q_1, q_2]),
+        torch.stack([q_0, q_1, q_2, q_3]),
         atol=1e-3,
     )
 
