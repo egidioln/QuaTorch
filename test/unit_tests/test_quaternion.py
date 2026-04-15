@@ -383,3 +383,21 @@ def test_from_rotation_matrix_under_edge_case_when_R_is_symmetric_and_trace_is_n
             dim=1,
         )
     ).item()
+
+
+def test_from_rotation_matrix_returns_correct_quaternion_for_a_spherical_combination_of_rotations():
+    axis = torch.tensor([1.0, 1.0, 2.0])
+    axis = axis / torch.norm(axis)
+    q_0 = Quaternion.from_axis_angle(axis, torch.tensor(31 * math.pi / 32))
+    q_1 = Quaternion.from_axis_angle(axis, torch.tensor(33 * math.pi / 32))
+    q_span = q_0.slerp(q_1, torch.linspace(0, 1, steps=100000)[..., None])
+
+    R_span = q_span.to_rotation_matrix()
+    q_from_R = Quaternion.from_rotation_matrix(R_span)
+    error_norm = torch.minimum(
+        (q_span - q_from_R).norm(dim=-1), (q_span + q_from_R).norm(dim=-1)
+    )
+
+    assert error_norm.max() < 1e-3, (
+        "Quaternion from rotation matrix does not match original quaternion span"
+    )
