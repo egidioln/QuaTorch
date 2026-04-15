@@ -6,7 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [0.2.2] - 2026-04-15
+## [0.3.0] - 2026-04-16
+
+### Feature
+- `from_axis_angle()` now supports broadcasting.
+- Improved handling of edge cases(~180-degree rotations) in `from_rotation_matrix()`.
 
 ### Fixed
 - Bug where identity matrix was not handled correctly in `from_rotation_matrix()`, reported in https://github.com/egidioln/QuaTorch/issues/7
