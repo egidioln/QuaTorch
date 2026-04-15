@@ -230,12 +230,6 @@ class Quaternion(torch.Tensor):
         """
         if axis.shape[-1] != 3:
             raise ValueError("Axis must have shape (..., 3)")
-        if axis.dim() != angle.dim() + 1:
-            raise ValueError(
-                "Axis (..., 3) and angle (...) must have the same number of leading dimensions"
-            )
-        if axis.shape[:-1] != angle.shape:
-            raise ValueError("Axis and angle must have compatible shapes")
 
         half_angle = angle / 2.0
         sin_half_angle = torch.sin(half_angle)
@@ -243,10 +237,10 @@ class Quaternion(torch.Tensor):
 
         axis = axis / torch.norm(axis, dim=-1, keepdim=True)
 
-        w = cos_half_angle
         x = axis[..., 0] * sin_half_angle
         y = axis[..., 1] * sin_half_angle
         z = axis[..., 2] * sin_half_angle
+        w = cos_half_angle.broadcast_to(x.shape)
 
         q = torch.stack([w, x, y, z], dim=-1)
         return q.as_subclass(Quaternion)
