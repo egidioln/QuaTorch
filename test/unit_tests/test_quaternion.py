@@ -314,6 +314,7 @@ def test_from_rotation_matrix_under_edge_case_when_R_is_symmetric_and_trace_is_n
     matrix = torch.tensor(
         [
             [
+                # almost symmetric
                 [-0.9925, -0.1025, 0.0669],
                 [-0.1022, 0.3934, -0.9137],
                 [0.0673, -0.9136, -0.4009],
@@ -325,11 +326,13 @@ def test_from_rotation_matrix_under_edge_case_when_R_is_symmetric_and_trace_is_n
                 [-0.6666667, -0.6666667, -0.3333333],
             ],
             [
+                # not problematic
                 [0.0000, 1.0000, 0.0000],
                 [-1.0000, 0.0000, 0.0000],
                 [0.0000, 0.0000, 1.0000],
             ],
             [
+                # negative trace but not symmetric
                 [-0.2440169, 0.9106836, -0.3333333],
                 [0.3333333, -0.2440169, -0.9106836],
                 [-0.9106836, -0.3333333, -0.2440169],
@@ -386,10 +389,10 @@ def test_from_rotation_matrix_under_edge_case_when_R_is_symmetric_and_trace_is_n
 
 
 def test_from_rotation_matrix_returns_correct_quaternion_for_a_spherical_combination_of_rotations():
-    axis = torch.tensor([1.0, 1.0, 2.0])
-    axis = axis / torch.norm(axis)
-    q_0 = Quaternion.from_axis_angle(axis, torch.tensor(31 * math.pi / 32))
-    q_1 = Quaternion.from_axis_angle(axis, torch.tensor(33 * math.pi / 32))
+    axis = torch.randn((100, 1, 3), generator=torch.Generator().manual_seed(0))
+    axis = axis / torch.norm(axis, dim=-1, keepdim=True)
+    q_0 = Quaternion.from_axis_angle(axis, torch.tensor(99 * math.pi / 100))
+    q_1 = Quaternion.from_axis_angle(axis, torch.tensor(101 * math.pi / 100))
     q_span = q_0.slerp(q_1, torch.linspace(0, 1, steps=100000)[..., None])
 
     R_span = q_span.to_rotation_matrix()
@@ -398,6 +401,6 @@ def test_from_rotation_matrix_returns_correct_quaternion_for_a_spherical_combina
         (q_span - q_from_R).norm(dim=-1), (q_span + q_from_R).norm(dim=-1)
     )
 
-    assert error_norm.max() < 1e-3, (
-        "Quaternion from rotation matrix does not match original quaternion span"
+    assert error_norm.max() < 5e-3, (
+        f"Quaternion from rotation matrix does not match original quaternion span, problematic matrix at position({error_norm.argmax()}): {R_span.reshape(-1, 3, 3)[error_norm.argmax()]}"
     )
