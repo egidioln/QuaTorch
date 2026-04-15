@@ -187,8 +187,8 @@ class Quaternion(torch.Tensor):
         R = R.reshape(-1, 3, 3)
 
         trace = R[..., 0, 0] + R[..., 1, 1] + R[..., 2, 2]
-        w = torch.sqrt(1.0 + trace) / 2.0
-        asR = (R - R.transpose(-2, -1)) / (4.0 * w.view(-1, 1, 1))
+        w = 1.0 + trace
+        asR = R - R.transpose(-2, -1)  # anti-symmetric part of R
         x = asR[..., 2, 1]
         y = asR[..., 0, 2]
         z = asR[..., 1, 0]
@@ -196,13 +196,9 @@ class Quaternion(torch.Tensor):
         # SPECIAL CASE: Symmetric R case should be handled separately to avoid division by zero
         # See Palais, B., Palais, R. Euler’s fixed point theorem: The axis of a rotation. J. fixed point theory appl. 2, 215–220 (2007). https://doi.org/10.1007/s11784-007-0042-5
         #
-        # To determine if a matrix is symmetric compute the norm of the skew-symmetric part, i.e., R - R^T. And verify if the off diagonal terms (the x, y, z) are all zero or infinite (due to division by w)
-        norm_sk_sym_part = torch.stack([x, y, z]).norm(dim=0)
+        # To determine if a non-identity matrix is symmetric in SO(3) we can simply check if trace==-1 as the eigenvalues are (1,-1,-1).
 
-        symmetric_mask = (norm_sk_sym_part < 1e-4) | ~torch.isfinite(norm_sk_sym_part)
-        identity_mask = torch.isclose(trace, torch.tensor(3.0).to(trace), atol=1e-4)
-        # Excluding identity, as it's symmetric, but it's not problematic
-        mask = symmetric_mask & ~identity_mask
+        mask = torch.isclose(w, w.new_tensor(0), atol=1e-6)
 
         uuT = (R[mask] + torch.eye(3, device=R.device, dtype=R.dtype)) / 2
         vs_norm = torch.norm(uuT, dim=-2, keepdim=True)
@@ -220,7 +216,7 @@ class Quaternion(torch.Tensor):
 
         q = torch.stack([w, x, y, z], dim=-1)
         q = q.reshape(*B, 4)
-        return q.as_subclass(Quaternion)
+        return q.as_subclass(Quaternion).normalize()
 
     @staticmethod
     def from_axis_angle(axis: torch.Tensor, angle: torch.Tensor) -> "Quaternion":
