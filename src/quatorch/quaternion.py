@@ -198,7 +198,8 @@ class Quaternion(torch.Tensor):
         #
         # To determine if a non-identity matrix is symmetric in SO(3) we can simply check if trace==-1 as the eigenvalues are (1,-1,-1).
 
-        mask = torch.isclose(w, w.new_tensor(0), atol=1e-6)
+        eps = torch.finfo(w.dtype).resolution * 2
+        mask = w < eps  # w should be non-negative for SO(3) matrices
 
         uuT = (R[mask] + torch.eye(3, device=R.device, dtype=R.dtype)) / 2
         vs_norm = torch.norm(uuT, dim=-2, keepdim=True)
