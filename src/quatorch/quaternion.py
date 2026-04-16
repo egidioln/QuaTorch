@@ -184,19 +184,18 @@ class Quaternion(torch.Tensor):
         if R.shape[-2:] != (3, 3):
             raise ValueError("Input rotation matrix must have shape (..., 3, 3)")
         B = R.shape[:-2]
-        R = R.reshape(-1, 3, 3)
+        R = R.view(-1, 3, 3)
 
         trace = R[..., 0, 0] + R[..., 1, 1] + R[..., 2, 2]
         w = 1.0 + trace
-        asR = R - R.transpose(-2, -1)  # anti-symmetric part of R
-        x = asR[..., 2, 1]
-        y = asR[..., 0, 2]
-        z = asR[..., 1, 0]
+
+        rows, cols = (2, 0, 1), (1, 2, 0)
+        x, y, z = (R[..., rows, cols] - R[..., cols, rows]).unbind(-1)
 
         # SPECIAL CASE: Symmetric R case should be handled separately to avoid division by zero
         # See Palais, B., Palais, R. Euler’s fixed point theorem: The axis of a rotation. J. fixed point theory appl. 2, 215–220 (2007). https://doi.org/10.1007/s11784-007-0042-5
         #
-        # To determine if a non-identity matrix is symmetric in SO(3) we can simply check if trace==-1 as the eigenvalues are (1,-1,-1).
+        # To determine if a non-identity matrix is symmetric in SO(3) we can simply check if trace == -1 (or w == 0) as the eigenvalues are (1,-1,-1).
 
         eps = torch.finfo(w.dtype).resolution * 2
         mask = w < eps  # w should be non-negative for SO(3) matrices
