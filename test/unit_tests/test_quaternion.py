@@ -303,11 +303,26 @@ def test_from_rotation_matrix_under_edge_case_when_R_is_symmetric():
         0.0,
         0.0,
     )
-    assert torch.allclose(
-        q.normalize(),
-        torch.stack([q_0, q_1, q_2, q_3]),
-        atol=1e-3,
-    )
+
+    expected_quaternion = Quaternion(torch.stack([q_0, q_1, q_2, q_3]))
+    assert torch.all(
+        torch.all(
+            torch.isclose(
+                q.normalize() / expected_quaternion,
+                Quaternion(1.0, 0.0, 0.0, 0.0),
+                atol=1e-3,
+            ),
+            dim=1,
+        )
+        | torch.all(
+            torch.isclose(
+                q.normalize() / expected_quaternion,
+                Quaternion(-1.0, 0.0, 0.0, 0.0),
+                atol=1e-3,
+            ),
+            dim=1,
+        )
+    ).item()
 
 
 def test_from_rotation_matrix_under_edge_case_when_R_is_symmetric_and_trace_is_negative():
