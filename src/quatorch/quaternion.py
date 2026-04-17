@@ -177,46 +177,46 @@ class Quaternion(torch.Tensor):
         r"""Create a quaternion from a 3x3 rotation matrix.
 
         Args:
-            R: A tensor of shape :math:`(..., 3, 3)` representing the rotation matrix(or matrices).
+            R: A tensor of shape :math:`(..., 3, 3)` representing the rotation matrix(or matrices). Assumed to be orthonormal.
         Returns:
             An equivalent quaternion.
         """
         if R.shape[-2:] != (3, 3):
             raise ValueError("Input rotation matrix must have shape (..., 3, 3)")
-        B = R.shape[:-2]
-        R = R.view(-1, 3, 3)
 
-        trace = R[..., 0, 0] + R[..., 1, 1] + R[..., 2, 2]
-        w = 1.0 + trace
+        # The implementation below is inspired by the one in scipy.spatial.transform._rotation_xp.py:_from_matrix_orthogonal
+        matrix_diag = torch.diagonal(R, dim1=-2, dim2=-1)
+        matrix_trace = R[..., 0, 0] + R[..., 1, 1] + R[..., 2, 2]
+        diag_max = torch.amax(matrix_diag, dim=-1)
 
-        rows, cols = (2, 0, 1), (1, 2, 0)
-        x, y, z = (R[..., rows, cols] - R[..., cols, rows]).unbind(-1)
+        regime_3 = matrix_trace > diag_max
+        regime_0, regime_1, regime_2 = (
+            (matrix_diag == diag_max[..., None]) & ~regime_3[..., None]
+        ).unbind(-1)
 
-        # SPECIAL CASE: Symmetric R case should be handled separately to avoid division by zero
-        # See Palais, B., Palais, R. Euler’s fixed point theorem: The axis of a rotation. J. fixed point theory appl. 2, 215–220 (2007). https://doi.org/10.1007/s11784-007-0042-5
-        #
-        # To determine if a non-identity matrix is symmetric in SO(3) we can simply check if trace == -1 (or w == 0) as the eigenvalues are (1,-1,-1).
+        quat = torch.empty((*R.shape[:-2], 4), dtype=R.dtype, device=R.device)
 
-        eps = torch.finfo(w.dtype).resolution * 2
-        mask = w < eps  # w should be non-negative for SO(3) matrices
+        quat[regime_0, 0] = R[regime_0, 2, 1] - R[regime_0, 1, 2]
+        quat[regime_0, 1] = 1.0 - matrix_trace[regime_0] + 2 * R[regime_0, 0, 0]
+        quat[regime_0, 2] = R[regime_0, 1, 0] + R[regime_0, 0, 1]
+        quat[regime_0, 3] = R[regime_0, 2, 0] + R[regime_0, 0, 2]
 
-        uuT = (R[mask] + torch.eye(3, device=R.device, dtype=R.dtype)) / 2
-        vs_norm = torch.norm(uuT, dim=-2, keepdim=True)
-        v = torch.einsum(
-            "... cd, ... cd-> ...c", uuT, torch.softmax(vs_norm * 100, dim=-1)
-        )
-        u = v / v.norm(dim=-1, keepdim=True)
-        x_sym, y_sym, z_sym = u.unbind(-1)
+        quat[regime_1, 0] = R[regime_1, 0, 2] - R[regime_1, 2, 0]
+        quat[regime_1, 1] = R[regime_1, 1, 0] + R[regime_1, 0, 1]
+        quat[regime_1, 2] = 1 - matrix_trace[regime_1] + 2 * R[regime_1, 1, 1]
+        quat[regime_1, 3] = R[regime_1, 2, 1] + R[regime_1, 1, 2]
 
-        x[mask] = x_sym
-        y[mask] = y_sym
-        z[mask] = z_sym
+        quat[regime_2, 0] = R[regime_2, 1, 0] - R[regime_2, 0, 1]
+        quat[regime_2, 1] = R[regime_2, 2, 0] + R[regime_2, 0, 2]
+        quat[regime_2, 2] = R[regime_2, 2, 1] + R[regime_2, 1, 2]
+        quat[regime_2, 3] = 1 - matrix_trace[regime_2] + 2 * R[regime_2, 2, 2]
 
-        # END SPECIAL CASE
+        quat[regime_3, 0] = 1 + matrix_trace[regime_3]
+        quat[regime_3, 1] = R[regime_3, 2, 1] - R[regime_3, 1, 2]
+        quat[regime_3, 2] = R[regime_3, 0, 2] - R[regime_3, 2, 0]
+        quat[regime_3, 3] = R[regime_3, 1, 0] - R[regime_3, 0, 1]
 
-        q = torch.stack([w, x, y, z], dim=-1)
-        q = q.reshape(*B, 4)
-        return q.as_subclass(Quaternion).normalize()
+        return Quaternion(quat).normalize()
 
     @staticmethod
     def from_axis_angle(axis: torch.Tensor, angle: torch.Tensor) -> "Quaternion":
