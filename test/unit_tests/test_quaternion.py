@@ -416,6 +416,6 @@ def test_from_rotation_matrix_returns_correct_quaternion_for_a_spherical_combina
         (q_span - q_from_R).norm(dim=-1), (q_span + q_from_R).norm(dim=-1)
     )
 
-    assert error_norm.max() < 5e-3, (
+    assert error_norm.max() < 1e-6, (
         f"Quaternion from rotation matrix does not match original quaternion span, problematic matrix at position({error_norm.argmax()}): {R_span.reshape(-1, 3, 3)[error_norm.argmax()]}"
     )
