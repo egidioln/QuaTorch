@@ -177,50 +177,46 @@ class Quaternion(torch.Tensor):
         r"""Create a quaternion from a 3x3 rotation matrix.
 
         Args:
-            R: A tensor of shape :math:`(..., 3, 3)` representing the rotation matrix(or matrices).
+            R: A tensor of shape :math:`(..., 3, 3)` representing the rotation matrix(or matrices). Assumed to be orthonormal.
         Returns:
             An equivalent quaternion.
         """
         if R.shape[-2:] != (3, 3):
             raise ValueError("Input rotation matrix must have shape (..., 3, 3)")
-        B = R.shape[:-2]
-        R = R.reshape(-1, 3, 3)
 
-        trace = R[..., 0, 0] + R[..., 1, 1] + R[..., 2, 2]
-        w = torch.sqrt(1.0 + trace) / 2.0
-        asR = (R - R.transpose(-2, -1)) / (4.0 * w.view(-1, 1, 1))
-        x = asR[..., 2, 1]
-        y = asR[..., 0, 2]
-        z = asR[..., 1, 0]
+        # The implementation below is inspired by the one in scipy.spatial.transform._rotation_xp.py:_from_matrix_orthogonal
+        matrix_diag = torch.diagonal(R, dim1=-2, dim2=-1)
+        matrix_trace = R[..., 0, 0] + R[..., 1, 1] + R[..., 2, 2]
+        diag_max = torch.amax(matrix_diag, dim=-1)
 
-        # SPECIAL CASE: Symmetric R case should be handled separately to avoid division by zero
-        # See Palais, B., Palais, R. Euler’s fixed point theorem: The axis of a rotation. J. fixed point theory appl. 2, 215–220 (2007). https://doi.org/10.1007/s11784-007-0042-5
-        #
-        # To determine if a matrix is symmetric compute the norm of the skew-symmetric part, i.e., R - R^T. And verify if the off diagonal terms (the x, y, z) are all zero or infinite (due to division by w)
-        norm_sk_sym_part = torch.stack([x, y, z]).norm(dim=0)
+        regime_3 = matrix_trace > diag_max
+        regime_0, regime_1, regime_2 = (
+            (matrix_diag == diag_max[..., None]) & ~regime_3[..., None]
+        ).unbind(-1)
 
-        symmetric_mask = (norm_sk_sym_part < 1e-4) | ~torch.isfinite(norm_sk_sym_part)
-        identity_mask = torch.isclose(trace, torch.tensor(3.0).to(trace), atol=1e-4)
-        # Excluding identity, as it's symmetric, but it's not problematic
-        mask = symmetric_mask & ~identity_mask
+        quat = torch.empty((*R.shape[:-2], 4), dtype=R.dtype, device=R.device)
 
-        uuT = (R[mask] + torch.eye(3, device=R.device, dtype=R.dtype)) / 2
-        vs_norm = torch.norm(uuT, dim=-2, keepdim=True)
-        v = torch.einsum(
-            "... cd, ... cd-> ...c", uuT, torch.softmax(vs_norm * 100, dim=-1)
-        )
-        u = v / v.norm(dim=-1, keepdim=True)
-        x_sym, y_sym, z_sym = u.unbind(-1)
+        quat[regime_0, 0] = R[regime_0, 2, 1] - R[regime_0, 1, 2]
+        quat[regime_0, 1] = 1.0 - matrix_trace[regime_0] + 2 * R[regime_0, 0, 0]
+        quat[regime_0, 2] = R[regime_0, 1, 0] + R[regime_0, 0, 1]
+        quat[regime_0, 3] = R[regime_0, 2, 0] + R[regime_0, 0, 2]
 
-        x[mask] = x_sym
-        y[mask] = y_sym
-        z[mask] = z_sym
+        quat[regime_1, 0] = R[regime_1, 0, 2] - R[regime_1, 2, 0]
+        quat[regime_1, 1] = R[regime_1, 1, 0] + R[regime_1, 0, 1]
+        quat[regime_1, 2] = 1 - matrix_trace[regime_1] + 2 * R[regime_1, 1, 1]
+        quat[regime_1, 3] = R[regime_1, 2, 1] + R[regime_1, 1, 2]
 
-        # END SPECIAL CASE
+        quat[regime_2, 0] = R[regime_2, 1, 0] - R[regime_2, 0, 1]
+        quat[regime_2, 1] = R[regime_2, 2, 0] + R[regime_2, 0, 2]
+        quat[regime_2, 2] = R[regime_2, 2, 1] + R[regime_2, 1, 2]
+        quat[regime_2, 3] = 1 - matrix_trace[regime_2] + 2 * R[regime_2, 2, 2]
 
-        q = torch.stack([w, x, y, z], dim=-1)
-        q = q.reshape(*B, 4)
-        return q.as_subclass(Quaternion)
+        quat[regime_3, 0] = 1 + matrix_trace[regime_3]
+        quat[regime_3, 1] = R[regime_3, 2, 1] - R[regime_3, 1, 2]
+        quat[regime_3, 2] = R[regime_3, 0, 2] - R[regime_3, 2, 0]
+        quat[regime_3, 3] = R[regime_3, 1, 0] - R[regime_3, 0, 1]
+
+        return Quaternion(quat).normalize()
 
     @staticmethod
     def from_axis_angle(axis: torch.Tensor, angle: torch.Tensor) -> "Quaternion":
@@ -234,12 +230,6 @@ class Quaternion(torch.Tensor):
         """
         if axis.shape[-1] != 3:
             raise ValueError("Axis must have shape (..., 3)")
-        if axis.dim() != angle.dim() + 1:
-            raise ValueError(
-                "Axis (..., 3) and angle (...) must have the same number of leading dimensions"
-            )
-        if axis.shape[:-1] != angle.shape:
-            raise ValueError("Axis and angle must have compatible shapes")
 
         half_angle = angle / 2.0
         sin_half_angle = torch.sin(half_angle)
@@ -247,10 +237,10 @@ class Quaternion(torch.Tensor):
 
         axis = axis / torch.norm(axis, dim=-1, keepdim=True)
 
-        w = cos_half_angle
         x = axis[..., 0] * sin_half_angle
         y = axis[..., 1] * sin_half_angle
         z = axis[..., 2] * sin_half_angle
+        w = cos_half_angle.broadcast_to(x.shape)
 
         q = torch.stack([w, x, y, z], dim=-1)
         return q.as_subclass(Quaternion)
